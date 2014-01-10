@@ -78,6 +78,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ClientTCP.cpp" />
+    <ClCompile Include="ClientUDP.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="ServerTCP.cpp" />
+    <ClCompile Include="WinsockFunctions.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ClientTCP.h" />
+    <ClInclude Include="ClientUDP.h" />
+    <ClInclude Include="ServerTCP.h" />
+    <ClInclude Include="WinsockFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
