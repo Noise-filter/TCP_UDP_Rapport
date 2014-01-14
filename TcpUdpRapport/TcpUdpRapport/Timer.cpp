@@ -3,105 +3,42 @@
 
 Timer::Timer()
 {
-	framesPerSecond = 0;
-	maxFramesPerSecond = 0;
-	FrameCount = 0;
-
-	delta = 0.0f;
-	fixedDelta = 0.0f;
-	useFixedStep = false;
-
-	QueryPerformanceFrequency((LARGE_INTEGER*)&ticksPerSecond);
-	QueryPerformanceFrequency((LARGE_INTEGER*)&currentTicks);
-	startupTicks = currentTicks;
-	oneSecTicks = currentTicks;
+	ticksPerSecond = startTicks = currentTicks = 0;
+	endTime = -1;
 }
 
 Timer::~Timer()
 {
 }
 
-void Timer::update()
+void Timer::Start()
 {
-	lastTicks = currentTicks;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&ticksPerSecond);
+	QueryPerformanceCounter((LARGE_INTEGER*)&startTicks);
+}
+
+double Timer::ElapsedSecounds()
+{
 	QueryPerformanceCounter((LARGE_INTEGER*)&currentTicks);
-
-	if(useFixedStep)
-		delta = fixedDelta;
-	else
-		delta = (float)((__int64)currentTicks - (__int64)lastTicks) / (__int64)ticksPerSecond;
-
-	if((float) ((__int64)currentTicks - (__int64)oneSecTicks) / (__int64)ticksPerSecond < 1.0f)
-		FrameCount++;
-	else
-	{
-		framesPerSecond = FrameCount;
-
-		if(framesPerSecond > maxFramesPerSecond)
-			maxFramesPerSecond = framesPerSecond;
-
-		FrameCount = 0;
-		oneSecTicks = currentTicks;
-	}
+	endTime = (currentTicks- startTicks) / ticksPerSecond;
+	return endTime;
 }
 
-void Timer::reset()
+double Timer::ElapsedMilliseconds()
 {
-	framesPerSecond = 0;
-	FrameCount = 0;
-	delta = 0.0f;
+	QueryPerformanceCounter((LARGE_INTEGER*)&currentTicks);
+	endTime = ((double)((__int64)currentTicks - (__int64)startTicks) / ((__int64)ticksPerSecond) * 1000);
+	return endTime;
 }
 
-float Timer::runtime()
+double Timer::ElapsedMicroseconds()
 {
-	return ((float)((__int64)currentTicks - (__int64)startupTicks) / (__int64)ticksPerSecond);
+	QueryPerformanceCounter((LARGE_INTEGER*)&currentTicks);
+	endTime = ((double)((__int64)currentTicks - (__int64)startTicks) / ((__int64)ticksPerSecond) * 1000000);
+	return endTime;
 }
 
-double Timer::GetSeconds()
+double Timer::GetEndTime()
 {
-	return ((double)((__int64)currentTicks - (__int64)startupTicks) / (__int64)ticksPerSecond);
-}
-
-double Timer::GetMilliSeconds()
-{
-	return ((double)((__int64)currentTicks - (__int64)startupTicks) / ((__int64)ticksPerSecond) * 1000);
-}
-
-double Timer::GetMicroSeconds()
-{
-	return ((double)((__int64)currentTicks - (__int64)startupTicks) / ((__int64)ticksPerSecond) * 1000000);
-}
-
-float Timer::elapsed()
-{
-	return delta;
-}
-
-int Timer::framerate()
-{
-	return framesPerSecond;
-}
-
-int Timer::maxFramerate()
-{
-	return maxFramesPerSecond;
-}
-
-int Timer::frameCount()
-{
-	return FrameCount;
-}
-
-void Timer::setFixedTimeStep(float step)
-{
-	if(step <= 0.0f)
-	{
-		useFixedStep = false;
-		fixedDelta = 0.0f;
-	}
-	else
-	{
-		useFixedStep = true;
-		fixedDelta = step;
-	}
+	return endTime;
 }

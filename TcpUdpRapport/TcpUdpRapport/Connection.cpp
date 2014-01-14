@@ -10,15 +10,15 @@ using namespace Oyster::Network;
 Connection::Connection()
 {
 	this->socket = -1;
-	bool stillSending = false;
-	bool closed = true;
+	stillSending = false;
+	closed = true;
 }
 
 Connection::Connection(int socket)
 {
 	this->socket = socket;
-	bool stillSending = false;
-	bool closed = true;
+	stillSending = false;
+	closed = true;
 }
 
 Connection::~Connection()
@@ -44,7 +44,7 @@ int Connection::Connect(unsigned short port , const char serverName[])
 	{
 		return result;
 	}
-	
+
 	closed = false;
 	stillSending = true;
 
@@ -144,7 +144,7 @@ int Connection::Listen()
 	int clientSocket;
 	if((clientSocket = (int)accept(this->socket, NULL, NULL)) == INVALID_SOCKET)
 	{
-		return (int)INVALID_SOCKET;;
+		return (int)INVALID_SOCKET;
 	}
 
 	return clientSocket;

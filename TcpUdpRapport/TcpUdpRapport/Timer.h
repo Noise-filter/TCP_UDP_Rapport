@@ -1,42 +1,26 @@
-#ifndef NETOWRK_DEPENDENCIES_TIMER_H
-#define NETOWRK_DEPENDENCIES_TIMER_H
+#ifndef TIMER_H
+#define TIMER_H
 
 class Timer
 {
 public:
 	Timer();
 	~Timer();
-	
-	void update();
-	void reset();
 
-	float runtime();
-	float elapsed();
+	void Start();
 
-	int framerate();
-	double GetSeconds();
-	double GetMilliSeconds();
-	double GetMicroSeconds();
+	double ElapsedSecounds();
+	double ElapsedMilliseconds();
+	double ElapsedMicroseconds();
 
-	int maxFramerate();
-	int frameCount();
-
-	void setFixedTimeStep(float step);
+	//Only use this to get the time after any of the Elapsed functions has been used.
+	double GetEndTime();
 
 private:
-	float delta;
-	int framesPerSecond;
-	int maxFramesPerSecond;
-	int FrameCount;
-
-	float fixedDelta;
-	bool useFixedStep;
-
 	unsigned __int64 ticksPerSecond;
-	unsigned __int64 startupTicks;
+	unsigned __int64 startTicks;
 	unsigned __int64 currentTicks;
-	unsigned __int64 oneSecTicks;
-	unsigned __int64 lastTicks;
+	double endTime;
 };
 
 #endif
