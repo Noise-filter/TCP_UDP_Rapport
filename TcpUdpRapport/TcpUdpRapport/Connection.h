@@ -29,6 +29,8 @@ namespace Oyster
 			virtual int Disconnect();
 			virtual int Connect( unsigned short port , const char serverName[] );
 			
+			int SetTCPNODELAY();
+
 			virtual int  Listen();
 
 			bool IsSending();

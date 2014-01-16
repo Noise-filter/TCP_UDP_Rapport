@@ -54,7 +54,7 @@ void UnpackProtocolPosition(OysterByte& byte, int& id)
 }
 
 //Change this to increase/decrease the number of matrixes that is sent.
-const int NUM_MATRIXES = 15;
+const int NUM_MATRIXES = 1;
 void PackProtocolBigPosition(OysterByte& byte, int id)
 {
 	//Several matrixes

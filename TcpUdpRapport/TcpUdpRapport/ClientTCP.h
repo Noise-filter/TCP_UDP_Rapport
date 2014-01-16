@@ -10,7 +10,7 @@ public:
 	~ClientTCP();
 
 	void InitNewClient(int socket);
-	void Connect(char ip[], unsigned short port);
+	bool Connect(char ip[], unsigned short port);
 
 	void Send(Oyster::Network::OysterByte& byte);
 	int Recv(Oyster::Network::OysterByte& byte);
@@ -18,7 +18,7 @@ public:
 	void Shutdown();
 
 private:
-	Oyster::Network::Connection connection;
+	Oyster::Network::Connection* connection;
 
 };
 

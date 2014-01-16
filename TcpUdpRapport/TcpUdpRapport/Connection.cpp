@@ -39,10 +39,9 @@ int Connection::Connect(unsigned short port , const char serverName[])
 	server.sin_port = htons(port);
 	server.sin_addr.s_addr = *(unsigned long*) hostEnt->h_addr;
 
-	int result;
-	if(result = connect(this->socket, (sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
+	if(connect(this->socket, (sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
 	{
-		return result;
+		return WSAGetLastError();
 	}
 
 	closed = false;
@@ -110,13 +109,16 @@ int Connection::Send(OysterByte &bytes)
 {
 	int nBytes;
 
+	if(SetTCPNODELAY())
+		printf("Error");
+
 	nBytes = send(this->socket, bytes, bytes.GetSize(), 0);
 	if(nBytes == SOCKET_ERROR)
 	{
-		return nBytes;
+		return WSAGetLastError();
 	}
 
-	return 0; 
+	return 0;
 }
 
 int Connection::Recieve(OysterByte &bytes)
@@ -128,7 +130,7 @@ int Connection::Recieve(OysterByte &bytes)
 	if(nBytes == SOCKET_ERROR)
 	{
 		bytes.SetSize(0);
-		return SOCKET_ERROR;
+		return WSAGetLastError();
 	}
 	else
 	{
@@ -183,6 +185,19 @@ int Connection::SetBlockingMode(bool blocking)
 	return 0;
 }
 
+int Connection::SetTCPNODELAY()
+{
+	int flag = 1;
+	int result = setsockopt(this->socket,		/* socket affected */
+							IPPROTO_TCP,		/* set option at TCP level */
+							TCP_NODELAY,		/* name of option */
+							(char *) &flag,		/* the cast is historical cruft */
+							sizeof(int));		/* length of option value */
+	if (result < 0)
+		return -1;
+	return 0;
+}
+
 ///////////////////////////////////////
 //Private functions
 ///////////////////////////////////////
@@ -192,6 +207,11 @@ int Connection::InitiateSocket()
 	if(this->socket == SOCKET_ERROR)
 	{
 		return socket;
+	}
+
+	if(SetTCPNODELAY())
+	{
+		return -1;
 	}
 
 	return 0;

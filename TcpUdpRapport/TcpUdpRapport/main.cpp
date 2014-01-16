@@ -66,17 +66,20 @@ int main()
 	{
 		cout << "Server" << endl;
 		if(UDP)
-			clientUDP.Connect((char*)IP.c_str(), PortUDP, RunServer);
+			clientUDP.Connect((char*)IP.c_str(), Port, RunServer);
 		else
-			serverTCP.Init(PortTCP);
+			serverTCP.Init(Port);
 	}
 	else
 	{
 		cout << "Client" << endl;
 		if(UDP)
-			clientUDP.Connect((char*)IP.c_str(), PortUDP, RunServer);
+			clientUDP.Connect((char*)IP.c_str(), Port, RunServer);
 		else
-			clientTCP.Connect((char*)IP.c_str(), PortTCP);
+			if(!clientTCP.Connect((char*)IP.c_str(), Port))
+			{
+				return 0;
+			}
 	}
 
 	//Accept clients on the tcp server. stops when you hit 'space'.
@@ -96,7 +99,6 @@ int main()
 			if(_kbhit())
 			{
 				int key = _getch();
-				cout << key << endl;
 				if(key == 32)	//Space
 					break;
 			}
@@ -121,9 +123,11 @@ int main()
 		{
 			int val = 0;
 			cout << "Menu" << endl;
-			cout << "1. Test 1" << endl;
-			cout << "2. Test 2" << endl;
-			cout << "3. 10,000" << endl;
+			cout << "1. 1 Packet" << endl;
+			cout << "2. 10 Packages" << endl;
+			cout << "3. 100 Packages" << endl;
+			cout << "4. 1000 Packages" << endl;
+			cout << "5. 10000 Packages" << endl;
 			cout << "0. Quit" << endl;
 			cin >> val;
 
@@ -131,17 +135,29 @@ int main()
 			{
 			case 1:
 				if(UDP)
+					keepLooping = ClientUpdateUDP(1);
+				else
+					keepLooping = ClientUpdateTCP(1);
+				break;
+			case 2:
+				if(UDP)
+					keepLooping = ClientUpdateUDP(10);
+				else
+					keepLooping = ClientUpdateTCP(10);
+				break;
+			case 3:
+				if(UDP)
+					keepLooping = ClientUpdateUDP(100);
+				else
+					keepLooping = ClientUpdateTCP(100);
+				break;
+			case 4:
+				if(UDP)
 					keepLooping = ClientUpdateUDP(1000);
 				else
 					keepLooping = ClientUpdateTCP(1000);
 				break;
-			case 2:
-				if(UDP)
-					keepLooping = ClientUpdateUDP(2000);
-				else
-					keepLooping = ClientUpdateTCP(2000);
-				break;
-			case 3:
+			case 5:
 				if(UDP)
 					keepLooping = ClientUpdateUDP(10000);
 				else
@@ -183,22 +199,96 @@ int main()
 
 bool ClientUpdateTCP(int numPackages)
 {
-	
+	int id = 0;
+	int id2 = -1;
+
+	Timer timer;
+	timer.Start();
+	for(int i = 0; id2 < numPackages-1; )
+	{
+		if(id < numPackages)
+		{
+			PackProtocolBigPosition(sendMsg, id++);
+			clientTCP.Send(sendMsg);
+			timers.timers[id-1].Start();
+		}
+
+		if(!clientTCP.Recv(recvMsg))
+		{
+			int temp = -1;
+			UnpackProtocolBigPosition(recvMsg, temp);
+			if(recvMsg.GetSize() > 68)
+				cout << temp << ", " << recvMsg.GetSize() << endl;
+
+			timers.timers[temp].ElapsedMilliseconds();
+
+			id2 = temp;
+		}
+
+		Sleep(1);
+	}
+	timer.ElapsedMilliseconds();
+
+	double average = 0.0;
+	double min = timers.timers[0].GetEndTime();
+	double max = timers.timers[0].GetEndTime();
+	int numLost = 0;
+	for(int i = 0; i < numPackages; i++)
+	{
+		if(timers.timers[i].GetEndTime() < 0)
+		{
+			numLost++;
+		}
+		else
+		{
+			if(timers.timers[i].GetEndTime() > max)
+				max = timers.timers[i].GetEndTime();
+			
+			if(timers.timers[i].GetEndTime() < min)
+				min = timers.timers[i].GetEndTime();
+
+			average += timers.timers[i].GetEndTime();
+			cout << timers.timers[i].GetEndTime() << endl;
+		}
+	}
+
+	cout << endl;
+	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
+	cout << "Min: " << min << " milliseconds." << endl;
+	cout << "Max: " << max << " milliseconds." << endl;
+	cout << "Average: " << average/(numPackages-numLost) << " milliseconds." << endl;
+	cout << "Lost packages: " << numLost << endl;
+	cout << id << endl << endl;
 	
 	return true;
 }
 
 bool ServerUpdateTCP()
 {
+	static int id = -1;
 	if(!clientTCP.Recv(recvMsg))
 	{
-		cout << recvMsg.GetByteArray() << endl;
-	}
+		int temp = -1;
+		UnpackProtocolBigPosition(recvMsg, temp);
+		if(recvMsg.GetSize() > 68)
+			cout << temp << ", " << recvMsg.GetSize() << endl;
 
+		//PackProtocolBigPosition(sendMsg, temp);
+		clientTCP.Send(recvMsg);
+		/*
+		if(temp == id+1)
+		{
+			id = temp;
+		}
+		else
+		{
+			cout << temp - id - 1 << endl;
+			id = temp;
+		}*/
+	}
+	//Sleep(1);
 	return true;
 }
-
-const int NUM_PACKAGES = 1000;
 
 bool ClientUpdateUDP(int numPackages)
 {
@@ -222,7 +312,7 @@ bool ClientUpdateUDP(int numPackages)
 			UnpackProtocolBigPosition(recvMsg, temp);
 			//cout << temp << ", " << recvMsg.GetSize() << endl;
 
-			timers.timers[temp].ElapsedMicroseconds();
+			timers.timers[temp].ElapsedMilliseconds();
 
 			id2 = temp;
 		}
@@ -250,15 +340,15 @@ bool ClientUpdateUDP(int numPackages)
 				min = timers.timers[i].GetEndTime();
 
 			average += timers.timers[i].GetEndTime();
-			//cout << timers.timers[i].GetEndTime() << endl;
+			cout << timers.timers[i].GetEndTime() << endl;
 		}
 	}
 
 	cout << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
-	cout << "Min: " << min << " microseconds." << endl;
-	cout << "Max: " << max << " microseconds." << endl;
-	cout << "Average: " << average/(numPackages-numLost) << " microseconds." << endl;
+	cout << "Min: " << min << " milliseconds." << endl;
+	cout << "Max: " << max << " milliseconds." << endl;
+	cout << "Average: " << average/(numPackages-numLost) << " milliseconds." << endl;
 	cout << "Lost packages: " << numLost << endl;
 	cout << id << endl << endl;
 

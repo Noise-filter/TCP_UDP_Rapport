@@ -135,7 +135,7 @@ int ConnectionUDP::Recieve(OysterByte &bytes)
 	if(nBytes <= 0)
 	{
 		bytes.SetSize(0);
-		return nBytes;
+		return WSAGetLastError();
 	}
 	else
 	{

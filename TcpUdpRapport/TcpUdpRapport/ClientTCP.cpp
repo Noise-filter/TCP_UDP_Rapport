@@ -12,28 +12,45 @@ ClientTCP::~ClientTCP()
 
 void ClientTCP::InitNewClient(int socket)
 {
-	connection = Oyster::Network::Connection(socket);
-	connection.SetBlockingMode(false);
+	connection = new Oyster::Network::Connection(socket);
+	connection->SetTCPNODELAY();
+	//connection->InitiateClient();
+	//connection->SetBlockingMode(false);
 }
 
-void ClientTCP::Connect(char ip[], unsigned short port)
+bool ClientTCP::Connect(char ip[], unsigned short port)
 {
-	connection.InitiateClient();
-	connection.Connect(port, ip);
-	connection.SetBlockingMode(false);
+	connection = new Oyster::Network::Connection;
+	int result = connection->InitiateClient();
+	if(result)
+		return false;
+
+	result = connection->Connect(port, ip);
+	if(result)
+		return false;
+
+	result = connection->SetBlockingMode(false);
+	if(result)
+		return false;
+
+	connection->SetTCPNODELAY();
+
+	return true;
 }
 
 void ClientTCP::Send(Oyster::Network::OysterByte& byte)
 {
-	connection.Send(byte);
+	int result = connection->Send(byte);
 }
+
 
 int ClientTCP::Recv(Oyster::Network::OysterByte& byte)
 {
-	return connection.Recieve(byte);
+	int result = connection->Recieve(byte);
+	return result;
 }
 
 void ClientTCP::Shutdown()
 {
-	connection.Disconnect();
+	connection->Disconnect();
 }
