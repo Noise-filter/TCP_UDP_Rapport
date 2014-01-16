@@ -82,6 +82,11 @@ int main()
 			}
 	}
 
+	if(UDP)
+		cout << "UDP" << endl;
+	else
+		cout << "TCP" << endl;
+
 	//Accept clients on the tcp server. stops when you hit 'space'.
 	bool keepLooping = true;
 	if(RunServer && !UDP)
