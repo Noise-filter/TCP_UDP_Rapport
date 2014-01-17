@@ -11,12 +11,19 @@ public:
 
 	void InitTimers(int numberOfTimers);
 
-	void CalculateResultAndSave(char* filename);
+	bool CalculateResultAndSave(int numPackages);
+	void printValues();
 
 	Timer* timers;
 
 private:
 	int nrOfTimers;
+	double average;
+	double min;
+	double max;
+	int numLost;
+	int numPackages;
+	
 	
 
 };

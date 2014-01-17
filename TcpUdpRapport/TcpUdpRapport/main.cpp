@@ -234,36 +234,13 @@ bool ClientUpdateTCP(int numPackages)
 	}
 	timer.ElapsedMilliseconds();
 
-	double average = 0.0;
-	double min = timers.timers[0].GetEndTime();
-	double max = timers.timers[0].GetEndTime();
-	int numLost = 0;
-	for(int i = 0; i < numPackages; i++)
-	{
-		if(timers.timers[i].GetEndTime() < 0)
-		{
-			numLost++;
-		}
-		else
-		{
-			if(timers.timers[i].GetEndTime() > max)
-				max = timers.timers[i].GetEndTime();
-			
-			if(timers.timers[i].GetEndTime() < min)
-				min = timers.timers[i].GetEndTime();
-
-			average += timers.timers[i].GetEndTime();
-			cout << timers.timers[i].GetEndTime() << endl;
-		}
-	}
+	
 
 	cout << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
-	cout << "Min: " << min << " milliseconds." << endl;
-	cout << "Max: " << max << " milliseconds." << endl;
-	cout << "Average: " << average/(numPackages-numLost) << " milliseconds." << endl;
-	cout << "Lost packages: " << numLost << endl;
-	cout << id << endl << endl;
+
+	timers.CalculateResultAndSave(numPackages);
+	timers.printValues();
 	
 	return true;
 }
@@ -326,36 +303,11 @@ bool ClientUpdateUDP(int numPackages)
 	}
 	timer.ElapsedMilliseconds();
 
-	double average = 0.0;
-	double min = timers.timers[0].GetEndTime();
-	double max = timers.timers[0].GetEndTime();
-	int numLost = 0;
-	for(int i = 0; i < numPackages; i++)
-	{
-		if(timers.timers[i].GetEndTime() < 0)
-		{
-			numLost++;
-		}
-		else
-		{
-			if(timers.timers[i].GetEndTime() > max)
-				max = timers.timers[i].GetEndTime();
-			
-			if(timers.timers[i].GetEndTime() < min)
-				min = timers.timers[i].GetEndTime();
-
-			average += timers.timers[i].GetEndTime();
-			cout << timers.timers[i].GetEndTime() << endl;
-		}
-	}
-
 	cout << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
-	cout << "Min: " << min << " milliseconds." << endl;
-	cout << "Max: " << max << " milliseconds." << endl;
-	cout << "Average: " << average/(numPackages-numLost) << " milliseconds." << endl;
-	cout << "Lost packages: " << numLost << endl;
-	cout << id << endl << endl;
+
+	timers.CalculateResultAndSave(numPackages);
+	timers.printValues();
 
 	return true;
 }

@@ -1,4 +1,9 @@
 #include "Timers.h"
+#include <fstream>
+#include <iostream>
+#include <ctime>
+
+using namespace std;
 
 Timers::Timers()
 {
@@ -27,7 +32,97 @@ void Timers::InitTimers(int numberOfTimers)
 	timers = new Timer[nrOfTimers];
 }
 
-void Timers::CalculateResultAndSave(char* filename)
+bool Timers::CalculateResultAndSave(int numPackages)
 {
+	average = 0.0;
+	min = this->timers[0].GetEndTime();
+	max = this->timers[0].GetEndTime();
+	numLost = 0;
+	this->numPackages = numPackages;
+	for(int i = 0; i < numPackages; i++)
+	{
+		if(this->timers[i].GetEndTime() < 0)
+		{
+			numLost++;
+		}
+		else
+		{
+			if(this->timers[i].GetEndTime() > max)
+				max = this->timers[i].GetEndTime();
+			
+			if(this->timers[i].GetEndTime() < min)
+				min = this->timers[i].GetEndTime();
 
+			average += this->timers[i].GetEndTime();
+		}
+	}
+	average /= (numPackages-numLost);
+
+
+	time_t t = time(0);   // get time now
+	struct tm * now = new tm();
+    localtime_s( now,  &t );
+
+	char* fileName = new char[49];
+	
+	int packages = numPackages;
+	int year = now->tm_year + 1900;
+	int month = now->tm_mon + 1;
+	int date = now->tm_mday;
+	int hour = now->tm_hour + 1;
+	int minutes = now->tm_min;
+	int seconds = now->tm_sec;
+
+	sprintf_s(fileName, 49 , "%d packages %d-%d-%d  %d.%d.%d.txt" , packages, year, month, date, hour, minutes, seconds); 
+    //sprintf_s(fileName, 36 , "hej%d%d%d%d%d%d%d.txt" , packages, year, month, date, hour, minutes, seconds);
+	ofstream outFile(fileName);
+
+	if(!outFile)
+	{
+		return false;
+	}
+
+	outFile << "Min: " << min << " milliseconds." << endl;
+	outFile << "Max: " << max << " milliseconds." << endl;
+	outFile << "Average: " << average << " milliseconds." << endl;
+	outFile << "sent packages: " << numPackages << endl;
+	outFile << "Lost packages: " << numLost << endl;
+	outFile << endl;
+
+	for(int i = 0; i < this->numPackages; i++)
+	{
+		if(this->timers[i].GetEndTime() < 0)
+		{
+				
+		}
+		else
+		{
+			outFile << this->timers[i].GetEndTime() << endl;
+		}
+	}
+	outFile.close();
+
+	delete now;
+	return true;
+}
+
+void Timers::printValues()
+{
+	for(int i = 0; i < this->numPackages; i++)
+	{
+		if(this->timers[i].GetEndTime() < 0)
+		{
+				
+		}
+		else
+		{
+			cout << this->timers[i].GetEndTime() << endl;
+		}
+	}
+
+	cout << endl;
+	cout << "Min: " << min << " milliseconds." << endl;
+	cout << "Max: " << max << " milliseconds." << endl;
+	cout << "Average: " << average << " milliseconds." << endl;
+	cout << "Lost packages: " << numLost << endl;
 }
