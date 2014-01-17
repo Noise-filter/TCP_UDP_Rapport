@@ -99,6 +99,7 @@ int main()
 				clientTCP.InitNewClient(client);
 				cout << client << " new client." << endl;
 				client = -1;
+				break;
 			}
 			
 			if(_kbhit())
