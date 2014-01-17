@@ -1,4 +1,4 @@
 Server	: 1
-UDP	: 0
+UDP	: 1
 Port	: 9876
 IP	: localhost
