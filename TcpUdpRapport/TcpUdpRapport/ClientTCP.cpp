@@ -2,24 +2,36 @@
 
 ClientTCP::ClientTCP()
 {
-	
+	connection = NULL;
 }
 
 ClientTCP::~ClientTCP()
 {
-
+	delete connection;
+	connection = NULL;
 }
 
 void ClientTCP::InitNewClient(int socket)
 {
+	if(connection)
+	{
+		delete connection;
+		connection = NULL;
+	}
+
 	connection = new Oyster::Network::Connection(socket);
 	connection->SetTCPNODELAY();
-	//connection->InitiateClient();
 	//connection->SetBlockingMode(false);
 }
 
 bool ClientTCP::Connect(char ip[], unsigned short port)
 {
+	if(connection)
+	{
+		delete connection;
+		connection = NULL;
+	}
+
 	connection = new Oyster::Network::Connection;
 	int result = connection->InitiateClient();
 	if(result)
@@ -38,15 +50,28 @@ bool ClientTCP::Connect(char ip[], unsigned short port)
 	return true;
 }
 
-void ClientTCP::Send(Oyster::Network::OysterByte& byte)
+void ClientTCP::TrySendBuffer()
 {
-	int result = connection->Send(byte);
+	buffering.Send(connection);
 }
 
-
+void ClientTCP::Send(Oyster::Network::OysterByte& byte)
+{
+	buffering.Buffer(byte, connection);
+}
+#include <iostream>
+using namespace std;
 int ClientTCP::Recv(Oyster::Network::OysterByte& byte)
 {
 	int result = connection->Recieve(byte);
+	if(!result)
+	{
+		//cout << "ASD: " << byte.GetSize() << endl;
+		buffering.AddRecvMessage(byte);
+	}
+
+	result = buffering.Recv(byte);
+
 	return result;
 }
 

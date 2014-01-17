@@ -2,6 +2,7 @@
 #define CLIENT_TCP_H
 
 #include "Connection.h"
+#include "Buffering.h"
 
 class ClientTCP
 {
@@ -12,13 +13,20 @@ public:
 	void InitNewClient(int socket);
 	bool Connect(char ip[], unsigned short port);
 
+	//Sends the buffer if the timer has ended.
+	void TrySendBuffer();
+
+	//Queues the message if buffering is used, if not it sends it directly.
 	void Send(Oyster::Network::OysterByte& byte);
+
+	//Will recv messages from the internet, and unbuffers them to the queue. Then gets the next message from the queue.
 	int Recv(Oyster::Network::OysterByte& byte);
 
 	void Shutdown();
 
 private:
 	Oyster::Network::Connection* connection;
+	Buffering buffering;
 
 };
 

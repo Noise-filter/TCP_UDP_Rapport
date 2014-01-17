@@ -34,6 +34,15 @@ namespace Oyster
 			//Only sets the private variable 'size'
 			void SetSize(unsigned int size);
 
+			//Copies over the pointer, size and capacity. It recreats the copyFrom array and sets size = 0.
+			void ShallowCopy(OysterByte& copyFrom);
+
+			//Copies over a part of the copyFrom array. NOT shallow copy.
+			void CopyPartOfArray(OysterByte& copyFrom, unsigned int startIndex, unsigned int endIndex);
+
+			//Copies over a part of the addFrom array and adds it to the end of this array.
+			void AddPartOfArray(OysterByte& addFrom, unsigned int startIndex, unsigned int endIndex);
+
 			OysterByte& operator =(const OysterByte& obj);
 
 			operator char*();
