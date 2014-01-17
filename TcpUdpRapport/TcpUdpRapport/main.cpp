@@ -353,13 +353,6 @@ bool ServerUpdateUDP()
 			cout << temp - id - 1 << endl;
 			id = temp;
 		}*/
-
-		if(_kbhit())
-		{
-			int key = _getch();
-			if(key == 32)	//Space
-				return false;
-		}
 	}
 	//Sleep(1);
 
