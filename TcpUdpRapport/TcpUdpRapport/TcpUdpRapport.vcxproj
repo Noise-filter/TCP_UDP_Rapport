@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Buffering.h" />
     <ClInclude Include="ClientTCP.h" />
     <ClInclude Include="ClientUDP.h" />
     <ClInclude Include="Config.h" />
@@ -158,6 +159,7 @@
     <ClInclude Include="WinsockFunctions.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Buffering.cpp" />
     <ClCompile Include="ClientTCP.cpp" />
     <ClCompile Include="ClientUDP.cpp" />
     <ClCompile Include="Config.cpp" />

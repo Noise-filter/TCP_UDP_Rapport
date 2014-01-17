@@ -54,6 +54,9 @@
     <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Buffering.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Connection.cpp">
@@ -90,6 +93,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffering.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

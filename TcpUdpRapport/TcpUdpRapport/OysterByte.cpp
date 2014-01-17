@@ -60,7 +60,7 @@ unsigned char* OysterByte::GetByteArray()
 
 void OysterByte::AddSize(unsigned int size)
 {
-	int newCapacity = this->size + size;
+	unsigned int newCapacity = this->size + size;
 
 	if(newCapacity >= capacity)
 	{
@@ -79,6 +79,56 @@ void OysterByte::SetBytes(unsigned char* bytes)
 void OysterByte::SetSize(unsigned int size)
 {
 	this->size = size;
+}
+
+void OysterByte::ShallowCopy(OysterByte& copyFrom)
+{
+	byteArray = copyFrom.byteArray;
+	size = copyFrom.size;
+	capacity = copyFrom.capacity;
+	copyFrom.byteArray = new unsigned char[capacity];
+	copyFrom.size = 0;
+}
+
+void OysterByte::CopyPartOfArray(OysterByte& copyFrom, unsigned int startIndex, unsigned int endIndex)
+{
+	if(startIndex < 0 && startIndex >= endIndex)
+		return;
+	if(endIndex > copyFrom.size)
+		return;
+
+	delete[] byteArray;
+	capacity = copyFrom.capacity;
+	size = endIndex-startIndex;
+	byteArray = new unsigned char[capacity];
+
+	for(unsigned int i = 0; i < size; i++)
+	{
+		byteArray[i] = copyFrom.byteArray[startIndex++];
+	}
+}
+
+void OysterByte::AddPartOfArray(OysterByte& addFrom, unsigned int startIndex, unsigned int endIndex)
+{
+	if(startIndex < 0 && startIndex >= endIndex)
+		return;
+	if(endIndex > addFrom.size)
+		return;
+
+	int totalSize = endIndex - startIndex;
+	totalSize += size;
+
+	if(totalSize > capacity)
+	{
+		IncreaseCapacity(totalSize);
+	}
+
+	for(int i = size; i < totalSize; i++)
+	{
+		byteArray[i] = addFrom.byteArray[startIndex++];
+	}
+
+	size = totalSize;
 }
 
 OysterByte& OysterByte::operator =(const OysterByte& obj)

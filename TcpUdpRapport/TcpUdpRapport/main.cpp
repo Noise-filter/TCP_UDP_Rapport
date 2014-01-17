@@ -25,9 +25,9 @@ bool ServerUpdateUDP();
 bool RunServer = false;
 bool UDP = true;
 
+bool buffering = false;
+
 string IP = "localhost";
-unsigned short PortTCP = 6789;
-unsigned short PortUDP = 9876;
 unsigned short Port = 9876;
 
 ClientTCP clientTCP;
@@ -126,6 +126,8 @@ int main()
 		}
 		else
 		{
+			int numPackages = 0;
+			bool runTest = false;
 			int val = 0;
 			cout << "Menu" << endl;
 			cout << "1. 1 Packet" << endl;
@@ -139,40 +141,38 @@ int main()
 			switch(val)
 			{
 			case 1:
-				if(UDP)
-					keepLooping = ClientUpdateUDP(1);
-				else
-					keepLooping = ClientUpdateTCP(1);
+				numPackages = 1;
+				runTest = true;
 				break;
 			case 2:
-				if(UDP)
-					keepLooping = ClientUpdateUDP(10);
-				else
-					keepLooping = ClientUpdateTCP(10);
+				numPackages = 10;
+				runTest = true;
 				break;
 			case 3:
-				if(UDP)
-					keepLooping = ClientUpdateUDP(100);
-				else
-					keepLooping = ClientUpdateTCP(100);
+				numPackages = 100;
+				runTest = true;
 				break;
 			case 4:
-				if(UDP)
-					keepLooping = ClientUpdateUDP(1000);
-				else
-					keepLooping = ClientUpdateTCP(1000);
+				numPackages = 1000;
+				runTest = true;
 				break;
 			case 5:
-				if(UDP)
-					keepLooping = ClientUpdateUDP(10000);
-				else
-					keepLooping = ClientUpdateTCP(10000);
+				numPackages = 10000;
+				runTest = true;
 				break;
 			case 0:
 				keepLooping = false;
 				break;
 			default:
 				break;
+			}
+
+			if(runTest)
+			{
+				if(UDP)
+					keepLooping = ClientUpdateUDP(numPackages);
+				else
+					keepLooping = ClientUpdateTCP(numPackages);
 			}
 		}
 	}
@@ -211,26 +211,28 @@ bool ClientUpdateTCP(int numPackages)
 	timer.Start();
 	for(int i = 0; id2 < numPackages-1; )
 	{
+		clientTCP.TrySendBuffer();
 		if(id < numPackages)
 		{
 			PackProtocolBigPosition(sendMsg, id++);
-			clientTCP.Send(sendMsg);
 			timers.timers[id-1].Start();
+			clientTCP.Send(sendMsg);
 		}
 
-		if(!clientTCP.Recv(recvMsg))
+		if(clientTCP.Recv(recvMsg))
 		{
 			int temp = -1;
-			UnpackProtocolBigPosition(recvMsg, temp);
-			if(recvMsg.GetSize() > 68)
-				cout << temp << ", " << recvMsg.GetSize() << endl;
+			int size = -1;
+			UnpackProtocolBigPosition(recvMsg, size, temp);
+			//if(recvMsg.GetSize() > 68)
+				//cout << temp << ", " << recvMsg.GetSize() << endl;
 
 			timers.timers[temp].ElapsedMilliseconds();
 
 			id2 = temp;
 		}
 
-		Sleep(1);
+		//Sleep(1);
 	}
 	timer.ElapsedMilliseconds();
 
@@ -248,12 +250,13 @@ bool ClientUpdateTCP(int numPackages)
 bool ServerUpdateTCP()
 {
 	static int id = -1;
-	if(!clientTCP.Recv(recvMsg))
+	if(clientTCP.Recv(recvMsg))
 	{
 		int temp = -1;
-		UnpackProtocolBigPosition(recvMsg, temp);
-		if(recvMsg.GetSize() > 68)
-			cout << temp << ", " << recvMsg.GetSize() << endl;
+		int size = -1;
+		UnpackProtocolBigPosition(recvMsg, size, temp);
+		//if(recvMsg.GetSize() > 68)
+		//cout << temp << ", " << recvMsg.GetSize() << ", " << size << endl;
 
 		//PackProtocolBigPosition(sendMsg, temp);
 		clientTCP.Send(recvMsg);
@@ -281,17 +284,19 @@ bool ClientUpdateUDP(int numPackages)
 	timer.Start();
 	for(int i = 0; id2 < numPackages-1; )
 	{
+		clientUDP.TrySendBuffer();
 		if(id < numPackages)
 		{
 			PackProtocolBigPosition(sendMsg, id++);
-			clientUDP.Send(sendMsg);
 			timers.timers[id-1].Start();
+			clientUDP.Send(sendMsg);
 		}
 
-		if(!clientUDP.Recv(recvMsg))
+		if(clientUDP.Recv(recvMsg))
 		{
 			int temp = -1;
-			UnpackProtocolBigPosition(recvMsg, temp);
+			int size = -1;
+			UnpackProtocolBigPosition(recvMsg, size, temp);
 			//cout << temp << ", " << recvMsg.GetSize() << endl;
 
 			timers.timers[temp].ElapsedMilliseconds();
@@ -315,11 +320,12 @@ bool ClientUpdateUDP(int numPackages)
 bool ServerUpdateUDP()
 {
 	static int id = -1;
-	if(!clientUDP.Recv(recvMsg))
+	if(clientUDP.Recv(recvMsg))
 	{
 		int temp = -1;
-		UnpackProtocolBigPosition(recvMsg, temp);
-		//cout << temp << ", " << recvMsg.GetSize() << endl;
+		int size = -1;
+		UnpackProtocolBigPosition(recvMsg, size, temp);
+		//cout << temp << ", " << recvMsg.GetSize() << ", " << size << endl;
 
 		//PackProtocolBigPosition(sendMsg, temp);
 		clientUDP.Send(recvMsg);

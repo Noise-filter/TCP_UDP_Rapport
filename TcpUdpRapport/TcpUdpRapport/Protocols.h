@@ -13,13 +13,15 @@ using Oyster::Network::OysterByte;
 void PackProtocolID(OysterByte& byte, int id)
 {
 	//One id
-	byte.SetSize(4);
-	Pack(&byte.GetByteArray()[0], id);
+	byte.SetSize(8);
+	Pack(&byte.GetByteArray()[0], 8);
+	Pack(&byte.GetByteArray()[4], id);
 }
 
-void UnpackProtocolID(OysterByte& byte, int& id)
+void UnpackProtocolID(OysterByte& byte, int& size, int& id)
 {
-	id = Unpacki(&byte.GetByteArray()[0]);
+	size = Unpacki(&byte.GetByteArray()[0]);
+	id = Unpacki(&byte.GetByteArray()[4]);
 }
 
 void PackProtocolPosition(OysterByte& byte, int id)
@@ -36,20 +38,20 @@ void PackProtocolPosition(OysterByte& byte, int id)
 		size += 4;
 	}
 	byte.SetSize(size);
+	Pack(&byte.GetByteArray()[0], size);
 }
 
-void UnpackProtocolPosition(OysterByte& byte, int& id)
+void UnpackProtocolPosition(OysterByte& byte, int& size, int& id)
 {
 	//One matrix
-	UnpackProtocolID(byte, id);
-
-	int size = sizeof(id);
-
+	UnpackProtocolID(byte, size, id);
+	
+	float temp = 0.0f;
+	int index = sizeof(id) + sizeof(size);
 	for(int i = 0; i < 16; i++)
 	{
-		float temp = 0.0f;
-		temp = Unpackf(&byte.GetByteArray()[size]);
-		size += 4;
+		temp = Unpackf(&byte.GetByteArray()[index]);
+		index += 4;
 	}
 }
 
@@ -70,20 +72,21 @@ void PackProtocolBigPosition(OysterByte& byte, int id)
 		size += 4;
 	}
 	byte.SetSize(size);
+	Pack(&byte.GetByteArray()[0], size);
 }
 
-void UnpackProtocolBigPosition(OysterByte& byte, int& id)
+void UnpackProtocolBigPosition(OysterByte& byte, int& size, int& id)
 {
 	//Several matrixes
 	int numMatrixes = NUM_MATRIXES;
-	UnpackProtocolID(byte, id);
+	UnpackProtocolID(byte, size, id);
 
 	float temp = 0.0f;
-	int size = sizeof(id);
+	int index = sizeof(id) + sizeof(size);
 	for(int i = 0; i < 16*numMatrixes; i++)
 	{
-		temp = Unpackf(&byte.GetByteArray()[size]);
-		size += 4;
+		temp = Unpackf(&byte.GetByteArray()[index]);
+		index += 4;
 	}
 }
 

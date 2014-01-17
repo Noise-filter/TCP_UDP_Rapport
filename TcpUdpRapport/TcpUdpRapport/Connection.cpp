@@ -80,6 +80,7 @@ int Connection::InitiateServer(unsigned short port)
 
 	if(bind(this->socket, (sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
 	{
+		errorCode = GetLastError();
 		errorCode = SOCKET_ERROR;
 		closesocket(this->socket);
 		return errorCode;

@@ -13,7 +13,7 @@ namespace Oyster
 {
 	namespace Network
 	{
-		class ConnectionUDP
+		class ConnectionUDP : public IConnection
 		{
 		public:
 			ConnectionUDP();
