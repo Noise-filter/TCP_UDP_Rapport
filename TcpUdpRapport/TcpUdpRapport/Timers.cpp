@@ -116,7 +116,7 @@ void Timers::printValues()
 		}
 		else
 		{
-			cout << this->timers[i].GetEndTime() << endl;
+			//cout << this->timers[i].GetEndTime() << endl;
 		}
 	}
 

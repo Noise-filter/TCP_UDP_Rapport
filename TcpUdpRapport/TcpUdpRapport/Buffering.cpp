@@ -94,7 +94,8 @@ bool Buffering::Recv(Oyster::Network::OysterByte& byte)
 	}
 	return false;
 }
-
+#include <iostream>
+using namespace std;
 void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 {
 	if(buffering)
@@ -111,6 +112,9 @@ void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 	}
 	else
 	{
+		//if(recievedMessages.size() > 0)
+		//	cout << "Queue size: " << recievedMessages.size() << endl;
+
 		//Loop through all packages that was recieved and add them to the queue.
 		int size = 0;
 		int initSize = 0;
@@ -129,7 +133,7 @@ void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 
 		size = 0;
 
-		for(int i = initSize; i < byte.GetSize(); i += size)
+ 		for(int i = initSize; i < byte.GetSize(); i += size)
 		{
 			size = Unpacki(&byte.GetByteArray()[i]);
 			if(i+size > byte.GetSize())

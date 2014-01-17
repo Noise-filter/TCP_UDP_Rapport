@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <conio.h>
+#include <vld.h>
 
 #include "WinsockFunctions.h"
 #include "OysterByte.h"
@@ -129,15 +130,15 @@ int main()
 		{
 			int numPackages = 0;
 			bool runTest = false;
-			int val = 0;
-			cout << "Menu" << endl;
+			int val = 5;
+			/*cout << "Menu" << endl;
 			cout << "1. 1 Packet" << endl;
 			cout << "2. 10 Packages" << endl;
 			cout << "3. 100 Packages" << endl;
 			cout << "4. 1000 Packages" << endl;
 			cout << "5. 10000 Packages" << endl;
-			cout << "0. Quit" << endl;
-			cin >> val;
+			cout << "0. Quit" << endl;*/
+			//cin >> val;
 
 			switch(val)
 			{
@@ -352,6 +353,13 @@ bool ServerUpdateUDP()
 			cout << temp - id - 1 << endl;
 			id = temp;
 		}*/
+
+		if(_kbhit())
+		{
+			int key = _getch();
+			if(key == 32)	//Space
+				return false;
+		}
 	}
 	//Sleep(1);
 

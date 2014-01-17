@@ -31,6 +31,7 @@ OysterByte::OysterByte(const OysterByte& obj)
 OysterByte::~OysterByte()
 {
 	delete[] byteArray;
+	byteArray = NULL;
 }
 
 void OysterByte::Clear()
@@ -83,6 +84,7 @@ void OysterByte::SetSize(unsigned int size)
 
 void OysterByte::ShallowCopy(OysterByte& copyFrom)
 {
+	delete[] byteArray;
 	byteArray = copyFrom.byteArray;
 	size = copyFrom.size;
 	capacity = copyFrom.capacity;

@@ -50,7 +50,7 @@ int ClientUDP::Recv(Oyster::Network::OysterByte& byte)
 
 	if(!result)
 		buffering.AddRecvMessage(byte);
-	
+
 	result = buffering.Recv(byte);
 
 	return result;
