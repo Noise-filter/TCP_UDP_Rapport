@@ -210,6 +210,7 @@ bool ClientUpdateTCP(int numPackages)
 
 	Timer timer;
 	timer.Start();
+	double time = timer.ElapsedMilliseconds();
 	for(int i = 0; id2 < numPackages-1; )
 	{
 		clientTCP.TrySendBuffer();
@@ -229,9 +230,14 @@ bool ClientUpdateTCP(int numPackages)
 				//cout << temp << ", " << recvMsg.GetSize() << endl;
 
 			timers.timers[temp].ElapsedMilliseconds();
+			
+			time = timer.ElapsedMilliseconds();
 
 			id2 = temp;
 		}
+
+		if(timer.ElapsedMilliseconds() - time > 2000)
+			break;
 
 		//Sleep(1);
 	}
