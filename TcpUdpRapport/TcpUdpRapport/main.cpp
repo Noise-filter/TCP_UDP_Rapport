@@ -131,14 +131,14 @@ int main()
 			int numPackages = 0;
 			bool runTest = false;
 			int val = 5;
-			/*cout << "Menu" << endl;
+			cout << "Menu" << endl;
 			cout << "1. 1 Packet" << endl;
 			cout << "2. 10 Packages" << endl;
 			cout << "3. 100 Packages" << endl;
 			cout << "4. 1000 Packages" << endl;
 			cout << "5. 10000 Packages" << endl;
-			cout << "0. Quit" << endl;*/
-			//cin >> val;
+			cout << "0. Quit" << endl;
+			cin >> val;
 
 			switch(val)
 			{
@@ -251,35 +251,23 @@ bool ClientUpdateTCP(int numPackages)
 
 	timers.CalculateResultAndSave(numPackages);
 	timers.printValues();
-	
+
 	return true;
 }
 
 bool ServerUpdateTCP()
 {
-	static int id = -1;
-	if(clientTCP.Recv(recvMsg))
+	if(!clientTCP.PureRecv(recvMsg))
 	{
 		int temp = -1;
 		int size = -1;
-		UnpackProtocolBigPosition(recvMsg, size, temp);
-		//if(recvMsg.GetSize() > 68)
+		
+		//UnpackProtocolBigPosition(recvMsg, size, temp);
 		//cout << temp << ", " << recvMsg.GetSize() << ", " << size << endl;
 
-		//PackProtocolBigPosition(sendMsg, temp);
-		clientTCP.Send(recvMsg);
-		/*
-		if(temp == id+1)
-		{
-			id = temp;
-		}
-		else
-		{
-			cout << temp - id - 1 << endl;
-			id = temp;
-		}*/
+		clientTCP.PureSend(recvMsg);
 	}
-	//Sleep(1);
+
 	return true;
 }
 
@@ -291,7 +279,8 @@ bool ClientUpdateUDP(int numPackages)
 	Timer timer;
 	timer.Start();
 	double time = timer.ElapsedMilliseconds();
-	for(int i = 0; id2 < numPackages-1; )
+	int i = 0;
+	for(; i < numPackages; )
 	{
 		clientUDP.TrySendBuffer();
 		if(id < numPackages)
@@ -313,6 +302,7 @@ bool ClientUpdateUDP(int numPackages)
 			time = timer.ElapsedMilliseconds();
 
 			id2 = temp;
+			i++;
 		}
 
 		if(timer.ElapsedMilliseconds() - time > 2000)
@@ -323,6 +313,7 @@ bool ClientUpdateUDP(int numPackages)
 	timer.ElapsedMilliseconds();
 
 	cout << endl;
+	cout << "Total packages recieved: " << i << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
 
 	timers.CalculateResultAndSave(numPackages);
@@ -333,28 +324,17 @@ bool ClientUpdateUDP(int numPackages)
 
 bool ServerUpdateUDP()
 {
-	static int id = -1;
-	if(clientUDP.Recv(recvMsg))
+	if(!clientUDP.PureRecv(recvMsg))
 	{
 		int temp = -1;
 		int size = -1;
-		UnpackProtocolBigPosition(recvMsg, size, temp);
+		
+		//UnpackProtocolBigPosition(recvMsg, size, temp);
 		//cout << temp << ", " << recvMsg.GetSize() << ", " << size << endl;
+		//cout << recvMsg.GetSize() << endl;
 
-		//PackProtocolBigPosition(sendMsg, temp);
-		clientUDP.Send(recvMsg);
-		/*
-		if(temp == id+1)
-		{
-			id = temp;
-		}
-		else
-		{
-			cout << temp - id - 1 << endl;
-			id = temp;
-		}*/
+		clientUDP.PureSend(recvMsg);
 	}
-	//Sleep(1);
 
 	return true;
 }

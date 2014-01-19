@@ -13,6 +13,7 @@ Timer::~Timer()
 
 void Timer::Start()
 {
+	endTime = -1;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&ticksPerSecond);
 	QueryPerformanceCounter((LARGE_INTEGER*)&startTicks);
 }

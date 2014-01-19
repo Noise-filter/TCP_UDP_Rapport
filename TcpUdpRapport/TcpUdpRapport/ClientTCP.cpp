@@ -75,6 +75,16 @@ int ClientTCP::Recv(Oyster::Network::OysterByte& byte)
 	return result;
 }
 
+void ClientTCP::PureSend(Oyster::Network::OysterByte& byte)
+{
+	connection->Send(byte);
+}
+
+int ClientTCP::PureRecv(Oyster::Network::OysterByte& byte)
+{
+	return connection->Recieve(byte);
+}
+
 void ClientTCP::Shutdown()
 {
 	connection->Disconnect();

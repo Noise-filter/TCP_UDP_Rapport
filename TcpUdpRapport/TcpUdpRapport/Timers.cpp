@@ -102,6 +102,7 @@ bool Timers::CalculateResultAndSave(int numPackages)
 	}
 	outFile.close();
 
+	delete[] fileName;
 	delete now;
 	return true;
 }

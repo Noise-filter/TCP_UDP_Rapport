@@ -100,6 +100,7 @@ int ConnectionUDP::Send(OysterByte &bytes)
 	reciever.sin_addr.s_addr = this->Address;
 	reciever.sin_port = port;
 
+	//printf("Send: %d\n", bytes.GetSize());
 	nBytes = sendto(this->socket,
 					bytes,
 					bytes.GetSize(),

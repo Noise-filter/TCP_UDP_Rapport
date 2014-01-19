@@ -22,6 +22,12 @@ public:
 	//Will recv messages from the internet, and unbuffers them to the queue. Then gets the next message from the queue.
 	int Recv(Oyster::Network::OysterByte& byte);
 
+	//Will only send and recv messages without any extra overhead.
+	//Will only be used by the server to pass on the messages back
+	// to the client.
+	void PureSend(Oyster::Network::OysterByte& byte);
+	int PureRecv(Oyster::Network::OysterByte& byte);
+
 	void Shutdown();
 
 private:

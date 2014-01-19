@@ -88,7 +88,7 @@ void OysterByte::ShallowCopy(OysterByte& copyFrom)
 	byteArray = copyFrom.byteArray;
 	size = copyFrom.size;
 	capacity = copyFrom.capacity;
-	copyFrom.byteArray = new unsigned char[capacity];
+	copyFrom.byteArray = new unsigned char[copyFrom.capacity];
 	copyFrom.size = 0;
 }
 

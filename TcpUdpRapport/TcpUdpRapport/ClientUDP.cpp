@@ -56,6 +56,16 @@ int ClientUDP::Recv(Oyster::Network::OysterByte& byte)
 	return result;
 }
 
+void ClientUDP::PureSend(Oyster::Network::OysterByte& byte)
+{
+	connection->Send(byte);
+}
+
+int ClientUDP::PureRecv(Oyster::Network::OysterByte& byte)
+{
+	return connection->Recieve(byte);
+}
+
 void ClientUDP::Shutdown()
 {
 	connection->Disconnect();
