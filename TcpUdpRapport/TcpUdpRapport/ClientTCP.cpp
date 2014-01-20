@@ -74,6 +74,7 @@ using namespace std;
 int ClientTCP::Recv(Oyster::Network::OysterByte& byte)
 {
 	int result = connection->Recieve(byte);
+
 	if(!result)
 	{
 		//cout << "ASD: " << byte.GetSize() << endl;

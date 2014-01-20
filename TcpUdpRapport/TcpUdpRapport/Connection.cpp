@@ -105,14 +105,15 @@ int Connection::InitiateClient()
 {
 	return InitiateSocket();
 }
-
+#include <iostream>
 int Connection::Send(OysterByte &bytes)
 {
 	int nBytes;
 
 	if(SetTCPNODELAY())
 		printf("Error");
-
+	
+	//std::cout << "Size: " << bytes.GetSize() << std::endl;
 	nBytes = send(this->socket, bytes, bytes.GetSize(), 0);
 	if(nBytes == SOCKET_ERROR)
 	{
@@ -131,12 +132,18 @@ int Connection::Recieve(OysterByte &bytes)
 	if(nBytes == SOCKET_ERROR)
 	{
 		bytes.SetSize(0);
-		return WSAGetLastError();
+		int result = WSAGetLastError();
+		if(result == WSAECONNRESET)
+			return 2;
+
+		return result;
 	}
 	else
 	{
 		bytes.SetSize(nBytes);
 	}
+	if(nBytes == 0)	//Connection dropped
+		return 2;
 
 	return 0;
 }

@@ -27,7 +27,9 @@ bool RunServer = false;
 bool UDP = true;
 
 bool buffering = false;
-double bufferTimeLimit = 0.1;
+double bufferTimeLimit = 0.02;
+
+double packagesPerSec = 0;
 
 string IP = "localhost";
 unsigned short Port = 9876;
@@ -93,6 +95,8 @@ int main()
 	bool keepLooping = true;
 	if(RunServer && !UDP)
 	{
+connections:
+		cout << "Listening for new client." << endl;
 		while(keepLooping)
 		{
 			int client = serverTCP.Accept();
@@ -102,13 +106,6 @@ int main()
 				cout << client << " new client." << endl;
 				client = -1;
 				break;
-			}
-			
-			if(_kbhit())
-			{
-				int key = _getch();
-				if(key == 32)	//Space
-					break;
 			}
 
 			Sleep(1);
@@ -125,7 +122,10 @@ int main()
 			if(UDP)
 				keepLooping = ServerUpdateUDP();
 			else
-				keepLooping = ServerUpdateTCP();
+				if(!ServerUpdateTCP())
+				{
+					goto connections;
+				}
 		}
 		else
 		{
@@ -160,11 +160,11 @@ int main()
 				runTest = true;
 				break;
 			case 4:
-				numPackages = 10000;
+				numPackages = 1000;
 				runTest = true;
 				break;
 			case 5:
-				numPackages = 100000;
+				numPackages = 10000;
 				runTest = true;
 				break;
 			case 9:
@@ -180,7 +180,8 @@ int main()
 			default:
 				break;
 			}
-
+			packagesPerSec -= 0;
+			cout << "Packages per sec: " << packagesPerSec << endl;
 			if(runTest)
 			{
 				if(UDP)
@@ -269,15 +270,16 @@ bool ClientUpdateTCP(int numPackages)
 
 bool ServerUpdateTCP()
 {
-	if(!clientTCP.PureRecv(recvMsg))
+	int result = clientTCP.PureRecv(recvMsg);
+	if(!result)
 	{
-		int temp = -1;
-		int size = -1;
-		
-		//UnpackProtocolBigPosition(recvMsg, size, temp);
-		//cout << temp << ", " << recvMsg.GetSize() << ", " << size << endl;
+		//cout << recvMsg.GetSize() << endl;	//Print out the size of the recieved message
 
 		clientTCP.PureSend(recvMsg);
+	}
+	else if(result == 2)	//Client dropped
+	{
+		return false;
 	}
 
 	return true;
@@ -288,18 +290,20 @@ bool ClientUpdateUDP(int numPackages)
 	int id = 0;
 	int id2 = -1;
 
-	Timer timer;
+	Timer timer, timer2;
 	timer.Start();
+	timer2.Start();
 	double time = timer.ElapsedMilliseconds();
 	int i = 0;
 	for(; i < numPackages; )
 	{
 		clientUDP.TrySendBuffer();
-		if(id < numPackages)
+		if(id < numPackages && timer2.ElapsedMilliseconds() > packagesPerSec)
 		{
 			PackProtocolBigPosition(sendMsg, id++);
 			timers.timers[id-1].Start();
 			clientUDP.Send(sendMsg);
+			timer2.Start();
 		}
 
 		if(clientUDP.Recv(recvMsg))
@@ -338,12 +342,7 @@ bool ServerUpdateUDP()
 {
 	if(!clientUDP.PureRecv(recvMsg))
 	{
-		int temp = -1;
-		int size = -1;
-
-		//UnpackProtocolBigPosition(recvMsg, size, temp);
-		//cout << temp << ", " << recvMsg.GetSize() << ", " << size << endl;
-		//cout << recvMsg.GetSize() << endl;
+		//cout << recvMsg.GetSize() << endl;	//Print out the size of the recieved message
 
 		clientUDP.PureSend(recvMsg);
 	}
@@ -358,6 +357,5 @@ bool ServerUpdateUDP()
 		Simple ID protocol: Only containing the ID.
 		Position Protocol: Containing an 4x4 matrix.
 		BigPosition Protocol: Containing x * 4x4 matrix.
-		
 
 */

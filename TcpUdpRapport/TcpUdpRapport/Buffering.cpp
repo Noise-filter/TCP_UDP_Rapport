@@ -12,7 +12,7 @@ Buffering::Buffering()
 	recvBuffer.Resize(1000);
 	sendBufferMaxSize = 1000;
 	timerLimit = 0.1;
-	sendBuffer.SetSize(4);
+	sendBuffer.SetSize(0);
 	timer.Start();
 }
 
@@ -49,12 +49,9 @@ void Buffering::Send(Oyster::Network::IConnection* con)
 
 void Buffering::SendBuffer(Oyster::Network::IConnection* con)
 {
-	//Pack size infront of the buffer.
-	Pack(sendBuffer, sendBuffer.GetSize());
-
 	//Send buffer and reset timer.
 	con->Send(sendBuffer);
-	sendBuffer.SetSize(4);
+	sendBuffer.SetSize(0);
 	hasMessageToSend = false;
 	timer.Start();
 }
@@ -103,127 +100,32 @@ using namespace std;
 
 void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 {
-	if(buffering)
+	//Loop through all packages that was recieved and add them to the queue.
+	int size = 0;
+
+	Oyster::Network::OysterByte msg;
+
+	//If there is part of a message in the buffer.
+	if(recvBuffer.GetSize() > 0)
 	{
-		Oyster::Network::OysterByte msg;
-		int size = 0;
-		//see if there is anything in the recvBuffer
-		if(recvBuffer.GetSize() > 0)
-		{
-			//If there is, add the new message to the recvBuffer and see if the size is enough now.
-			size = Unpacki(recvBuffer);
-			int totalSize = recvBuffer.GetSize() + byte.GetSize();
-			if(totalSize < size)
-			{
-				recvBuffer += byte;
-			}
-			else if(totalSize == size)
-			{
-				recvBuffer += byte;
-				msg.ShallowCopy(recvBuffer);
-			}
-			else //totalSize > size TODO
-			{
-
-			}
-		}
-		else
-		{
-			size = Unpacki(byte);
-			if(size == byte.GetSize())
-			{
-				size = 0;
-				//Split a buffer message into several real messages.
-				for(int i = 4; i < byte.GetSize(); i += size)
-				{
-					size = Unpacki(&byte.GetByteArray()[i]);
-					msg.CopyPartOfArray(byte, i, i+size);
-					recievedMessages.push(msg);
-					hasRecievedMessage = true;
-				}
-			}
-			else if(size < byte.GetSize())
-			{
-				int bufferSize = size;
-				size = 0;
-
-				//Go through all the buffer messages in this package.
-				for(int j = 0; j < byte.GetSize(); j += bufferSize)
-				{
-					bufferSize = Unpacki(&byte.GetByteArray()[j]);
-
-					//If a buffer package is not completely in the package.
-					//Add it to the recievebuffer so it can be completed with the next recieved package.
-					if(bufferSize + j > byte.GetSize())
-					{
-						int temp = j + bufferSize;
-						if(temp > byte.GetSize())
-							temp = byte.GetSize();
-						recvBuffer.CopyPartOfArray(byte, j, temp);
-					}
-					else
-					{
-						//Split a buffer message into several real messages.
-						for(int i = 4+j; i < bufferSize+j; i += size)
-						{
-							size = Unpacki(&byte.GetByteArray()[i]);
-							msg.CopyPartOfArray(byte, i, i+size);
-							recievedMessages.push(msg);
-							hasRecievedMessage = true;
-						}
-					}
-				}
-			}
-			else //size > byte.GetSize();
-			{
-				//Copy entire package into the recvBuffer.
-				recvBuffer.CopyPartOfArray(byte, 0, byte.GetSize());
-			}
-		}
-
-		//TODO
-				//If the size isn't enough wait for next message.
-				//If the size is enough get all the packages from the recvbuffer and add them to the queue.
-
-		//Get first size from recvBuffer
-
-		//Kolla om size == size of recvBuffer.
+		int temp = recvBuffer.GetSize();
+		msg.ShallowCopy(recvBuffer);
+		size = Unpacki(msg);
+		size -= msg.GetSize();
+		msg.AddPartOfArray(byte, 0, size);
 	}
-	else
+
+ 	for(int i = size; i < byte.GetSize(); i += size)
 	{
-		//if(recievedMessages.size() > 0)
-		//	cout << "Queue size: " << recievedMessages.size() << endl;
-
-		//Loop through all packages that was recieved and add them to the queue.
-		int size = 0;
-		int initSize = 0;
-
-		Oyster::Network::OysterByte msg;
-
-		//If there is part of a message in the buffer.
-		if(recvBuffer.GetSize() > 0)
+		size = Unpacki(&byte.GetByteArray()[i]);
+		if(i+size > byte.GetSize())
 		{
-			int temp = recvBuffer.GetSize();
-			msg.ShallowCopy(recvBuffer);
-			size = Unpacki(msg);
-			initSize = size - msg.GetSize();
-			msg.AddPartOfArray(byte, 0, initSize);
+			//Add it to the recvBuffer instead.
+			recvBuffer.CopyPartOfArray(byte, i, byte.GetSize());
+			break;
 		}
-
-		size = 0;
-
- 		for(int i = initSize; i < byte.GetSize(); i += size)
-		{
-			size = Unpacki(&byte.GetByteArray()[i]);
-			if(i+size > byte.GetSize())
-			{
-				//Add it to the recvBuffer instead.
-				recvBuffer.CopyPartOfArray(byte, i, byte.GetSize());
-				break;
-			}
-			msg.CopyPartOfArray(byte, i, i+size);
-			recievedMessages.push(msg);
-			hasRecievedMessage = true;
-		}
+		msg.CopyPartOfArray(byte, i, i+size);
+		recievedMessages.push(msg);
+		hasRecievedMessage = true;
 	}
 }
