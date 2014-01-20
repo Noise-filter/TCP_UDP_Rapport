@@ -9,7 +9,7 @@ public:
 	Timers();
 	~Timers();
 
-	void InitTimers(int numberOfTimers);
+	void InitTimers(int numberOfTimers); //, bool UDP, bool buffering);
 
 	bool CalculateResultAndSave(int numPackages);
 	void printValues();

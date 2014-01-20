@@ -32,7 +32,7 @@ void Timers::InitTimers(int numberOfTimers)
 	timers = new Timer[nrOfTimers];
 }
 
-bool Timers::CalculateResultAndSave(int numPackages)
+bool Timers::CalculateResultAndSave(int numPackages)//, bool UDP, bool buffering)
 {
 	average = 0.0;
 	min = this->timers[0].GetEndTime();
@@ -63,7 +63,7 @@ bool Timers::CalculateResultAndSave(int numPackages)
 	struct tm * now = new tm();
     localtime_s( now,  &t );
 
-	char* fileName = new char[49];
+	char* fileName = new char[58];
 	
 	int packages = numPackages;
 	int year = now->tm_year + 1900;
@@ -73,8 +73,8 @@ bool Timers::CalculateResultAndSave(int numPackages)
 	int minutes = now->tm_min;
 	int seconds = now->tm_sec;
 
-	sprintf_s(fileName, 49 , "%d packages %d-%d-%d  %d.%d.%d.txt" , packages, year, month, date, hour, minutes, seconds); 
-    //sprintf_s(fileName, 36 , "hej%d%d%d%d%d%d%d.txt" , packages, year, month, date, hour, minutes, seconds);
+	sprintf_s(fileName, 58 , "Research/%d packages %d-%d-%d  %d.%d.%d.txt" , packages, year, month, date, hour, minutes, seconds); 
+   //sprintf_s(fileName, 39 , "Tests/%d%d%d%d%d%d%d.txt" , packages, year, month, date, hour, minutes, seconds);
 	ofstream outFile(fileName);
 
 	if(!outFile)

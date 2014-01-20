@@ -155,11 +155,11 @@ int main()
 				runTest = true;
 				break;
 			case 4:
-				numPackages = 1000;
+				numPackages = 10000;
 				runTest = true;
 				break;
 			case 5:
-				numPackages = 10000;
+				numPackages = 100000;
 				runTest = true;
 				break;
 			case 0:
