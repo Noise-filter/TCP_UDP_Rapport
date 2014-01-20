@@ -5,7 +5,7 @@ using namespace Oyster::Network::Packing;
 
 Buffering::Buffering()
 {
-	buffering = true;
+	buffering = false;
 	hasMessageToSend = false;
 	hasRecievedMessage = false;
 	sendBuffer.Resize(1000);
@@ -122,7 +122,7 @@ void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 				recvBuffer += byte;
 				msg.ShallowCopy(recvBuffer);
 			}
-			else //totalSize > size
+			else //totalSize > size TODO
 			{
 
 			}

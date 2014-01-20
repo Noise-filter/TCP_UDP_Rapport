@@ -215,5 +215,8 @@ int Connection::InitiateSocket()
 		return -1;
 	}
 
+	int flag = 1024*16;
+	int result = setsockopt(this->socket, SOL_SOCKET, SO_RCVBUF, (char*)&flag, sizeof(int));
+
 	return 0;
 }
