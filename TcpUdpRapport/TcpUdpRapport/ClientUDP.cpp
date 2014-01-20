@@ -34,6 +34,16 @@ void ClientUDP::Connect(char ip[], unsigned short port, bool server)
 	connection->SetBlockingMode(false);
 }
 
+void ClientUDP::UseBuffering(bool state)
+{
+	buffering.UseBuffering(state);
+}
+
+void ClientUDP::SetBufferTimeLimit(double limit)
+{
+	buffering.SetBufferTimeLimit(limit);
+}
+
 void ClientUDP::TrySendBuffer()
 {
 	buffering.Send(connection);

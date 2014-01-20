@@ -12,6 +12,12 @@ public:
 
 	void Connect(char ip[], unsigned short port, bool server);
 	
+	//Turn on/off buffering
+	void UseBuffering(bool state);
+
+	//Set Buffer time limit in milliseconds
+	void SetBufferTimeLimit(double limit);
+
 	//Sends the buffer if the timer has ended.
 	void TrySendBuffer();
 	

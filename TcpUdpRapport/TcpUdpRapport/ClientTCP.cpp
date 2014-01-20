@@ -50,6 +50,16 @@ bool ClientTCP::Connect(char ip[], unsigned short port)
 	return true;
 }
 
+void ClientTCP::UseBuffering(bool state)
+{
+	buffering.UseBuffering(state);
+}
+
+void ClientTCP::SetBufferTimeLimit(double limit)
+{
+	buffering.SetBufferTimeLimit(limit);
+}
+
 void ClientTCP::TrySendBuffer()
 {
 	buffering.Send(connection);

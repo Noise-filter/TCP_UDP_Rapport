@@ -13,6 +13,12 @@ public:
 	void InitNewClient(int socket);
 	bool Connect(char ip[], unsigned short port);
 
+	//Turn on/off buffering
+	void UseBuffering(bool state);
+
+	//Set Buffer time limit in milliseconds
+	void SetBufferTimeLimit(double limit);
+
 	//Sends the buffer if the timer has ended.
 	void TrySendBuffer();
 

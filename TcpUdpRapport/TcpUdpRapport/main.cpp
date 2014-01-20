@@ -27,6 +27,7 @@ bool RunServer = false;
 bool UDP = true;
 
 bool buffering = false;
+double bufferTimeLimit = 0.1;
 
 string IP = "localhost";
 unsigned short Port = 9876;
@@ -137,6 +138,10 @@ int main()
 			cout << "3. 100 Packages" << endl;
 			cout << "4. 1000 Packages" << endl;
 			cout << "5. 10000 Packages" << endl;
+			if(buffering)
+				cout << "9. Turn buffering off" << endl;
+			else
+				cout << "9. Turn buffering on" << endl;
 			cout << "0. Quit" << endl;
 			cin >> val;
 
@@ -161,6 +166,13 @@ int main()
 			case 5:
 				numPackages = 100000;
 				runTest = true;
+				break;
+			case 9:
+				buffering = !buffering;
+				clientUDP.UseBuffering(buffering);
+				clientUDP.SetBufferTimeLimit(bufferTimeLimit);
+				clientTCP.UseBuffering(buffering);
+				clientTCP.SetBufferTimeLimit(bufferTimeLimit);
 				break;
 			case 0:
 				keepLooping = false;
@@ -328,7 +340,7 @@ bool ServerUpdateUDP()
 	{
 		int temp = -1;
 		int size = -1;
-		
+
 		//UnpackProtocolBigPosition(recvMsg, size, temp);
 		//cout << temp << ", " << recvMsg.GetSize() << ", " << size << endl;
 		//cout << recvMsg.GetSize() << endl;
