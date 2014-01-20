@@ -261,7 +261,7 @@ bool ClientUpdateTCP(int numPackages)
 	cout << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
 
-	timers.CalculateResultAndSave(numPackages);
+	timers.CalculateResultAndSave(numPackages, UDP, buffering);
 	timers.printValues();
 
 	return true;
@@ -328,7 +328,7 @@ bool ClientUpdateUDP(int numPackages)
 	cout << "Total packages recieved: " << i << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
 
-	timers.CalculateResultAndSave(numPackages);
+	timers.CalculateResultAndSave(numPackages, UDP, buffering);
 	timers.printValues();
 
 	return true;
