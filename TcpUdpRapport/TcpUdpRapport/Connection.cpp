@@ -19,6 +19,7 @@ Connection::Connection(int socket)
 	this->socket = socket;
 	stillSending = false;
 	closed = true;
+	SetTCPNODELAY();
 }
 
 Connection::~Connection()
