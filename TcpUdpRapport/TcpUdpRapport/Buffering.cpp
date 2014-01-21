@@ -116,12 +116,14 @@ void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 			msg.ShallowCopy(recvBuffer);
 			size -= msg.GetSize();
 			msg.AddPartOfArray(byte, 0, size);
+			recievedMessages.push(msg);
 		}
 		else if(temp + byte.GetSize() == size)
 		{
 			msg.ShallowCopy(recvBuffer);
 			size -= msg.GetSize();
 			msg += byte;
+			recievedMessages.push(msg);
 		}
 		else
 		{
