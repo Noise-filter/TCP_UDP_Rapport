@@ -1,5 +1,6 @@
 #include "Buffering.h"
 #include "Packing.h"
+#include "Defines.h"
 
 using namespace Oyster::Network::Packing;
 
@@ -8,9 +9,9 @@ Buffering::Buffering()
 	buffering = false;
 	hasMessageToSend = false;
 	hasRecievedMessage = false;
-	sendBuffer.Resize(1000);
-	recvBuffer.Resize(1000);
-	sendBufferMaxSize = 1000;
+	sendBuffer.Resize(MAX_MESSAGE_SIZE);
+	recvBuffer.Resize(MAX_MESSAGE_SIZE);
+	sendBufferMaxSize = MAX_MESSAGE_SIZE;
 	timerLimit = 0.1;
 	sendBuffer.SetSize(0);
 	timer.Start();

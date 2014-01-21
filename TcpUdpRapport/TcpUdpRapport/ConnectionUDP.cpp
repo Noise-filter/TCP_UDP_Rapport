@@ -3,6 +3,7 @@
 #include <WinSock2.h>
 #include "Packing.h"
 #include <stdio.h>
+#include "Defines.h"
 
 using namespace Oyster::Network;
 
@@ -123,10 +124,10 @@ int ConnectionUDP::Recieve(OysterByte &bytes)
 	sockaddr_in from;
     int fromLength = sizeof( from );
 
-	bytes.Resize(1000);
+	bytes.Resize(MAX_MESSAGE_SIZE);
 	nBytes = recvfrom(this->socket,
 					  bytes,
-					  1000,
+					  MAX_MESSAGE_SIZE,
 					  0,
 					  (sockaddr*)&from,
 					  &fromLength 

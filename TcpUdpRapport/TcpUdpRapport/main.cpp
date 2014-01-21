@@ -15,6 +15,8 @@
 
 #include "Protocols.h"
 
+#include "Defines.h"
+
 using namespace Oyster::Network;
 using namespace std;
 
@@ -48,8 +50,8 @@ Timers timers;
 int main()
 {
 	timers.InitTimers(1000000);
-	recvMsg.Resize(1000);
-	sendMsg.Resize(1000);
+	recvMsg.Resize(MAX_MESSAGE_SIZE);
+	sendMsg.Resize(MAX_MESSAGE_SIZE);
 
 	InitWinSock();
 

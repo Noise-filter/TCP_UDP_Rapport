@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <fcntl.h>
+#include "Defines.h"
 
 using namespace Oyster::Network;
 
@@ -128,8 +129,8 @@ int Connection::Recieve(OysterByte &bytes)
 {
 	int nBytes;
 
-	bytes.Resize(1000);
-	nBytes = recv(this->socket, bytes, 1000, 0);
+	bytes.Resize(MAX_MESSAGE_SIZE);
+	nBytes = recv(this->socket, bytes, MAX_MESSAGE_SIZE, 0);
 	if(nBytes == SOCKET_ERROR)
 	{
 		bytes.SetSize(0);
