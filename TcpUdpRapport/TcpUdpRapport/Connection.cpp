@@ -111,9 +111,6 @@ int Connection::InitiateClient()
 int Connection::Send(OysterByte &bytes)
 {
 	int nBytes;
-
-	if(SetTCPNODELAY())
-		printf("Error");
 	
 	//std::cout << "Size: " << bytes.GetSize() << std::endl;
 	nBytes = send(this->socket, bytes, bytes.GetSize(), 0);

@@ -109,14 +109,21 @@ void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 	//If there is part of a message in the buffer.
 	if(recvBuffer.GetSize() > 0)
 	{
+		//cout << "the buffer size: " << recvBuffer.GetSize() <<endl;
 		int temp = recvBuffer.GetSize();
 		size = Unpacki(recvBuffer);
+		if(size > 72)
+		{
+				//cout << "SIZE BIGGER THAN 72" << endl; 
+		}
 		if(temp + byte.GetSize() > size)
 		{
 			msg.ShallowCopy(recvBuffer);
 			size -= msg.GetSize();
 			msg.AddPartOfArray(byte, 0, size);
 			recievedMessages.push(msg);
+			//cout << "finished message 1" <<endl;
+			hasRecievedMessage = true;
 		}
 		else if(temp + byte.GetSize() == size)
 		{
@@ -124,9 +131,12 @@ void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 			size -= msg.GetSize();
 			msg += byte;
 			recievedMessages.push(msg);
+			//cout << "finished message 2" <<endl;
+			hasRecievedMessage = true;
 		}
 		else
 		{
+			//cout << "got a part of the message" <<endl;
 			recvBuffer += byte;
 			size = byte.GetSize();
 		}
