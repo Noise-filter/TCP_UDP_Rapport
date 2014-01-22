@@ -224,17 +224,19 @@ bool ClientUpdateTCP(int numPackages)
 	int id = 0;
 	int id2 = -1;
 
-	Timer timer;
+	Timer timer, timer2;
 	timer.Start();
+	timer2.Start();
 	double time = timer.ElapsedMilliseconds();
 	for(int i = 0; id2 < numPackages-1; )
 	{
 		clientTCP.TrySendBuffer();
-		if(id < numPackages)
+		if(id < numPackages && timer2.ElapsedMilliseconds() > packagesPerSec)
 		{
 			PackProtocolBigPosition(sendMsg, id++);
 			timers.timers[id-1].Start();
 			clientTCP.Send(sendMsg);
+			timer2.Start();
 		}
 
 		if(clientTCP.Recv(recvMsg))
