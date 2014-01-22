@@ -63,10 +63,10 @@ int main()
 	recvMsg.Resize(MAX_MESSAGE_SIZE);
 	sendMsg.Resize(MAX_MESSAGE_SIZE);
 
-	pps[0] = (double)1/(double)3000 * 1000;
-	pps[1] = (double)1/(double)3000 * 1000;
-	pps[2] = (double)1/(double)1500 * 1000;
-	pps[3] = (double)1/(double)700 * 1000;
+	pps[0] = (double)1/(double)4000 * 1000;
+	pps[1] = (double)1/(double)4000 * 1000;
+	pps[2] = (double)1/(double)2000 * 1000;
+	pps[3] = (double)1/(double)1000 * 1000;
 
 	InitWinSock();
 
@@ -336,56 +336,87 @@ bool ServerUpdateTCP()
 	return true;
 }
 
-bool ClientUpdateUDP(int numPackages)
+bool ClientUpdateUDP(int seconds)
 {
-	/*int id = 0;
-	int id2 = -1;
+	int id[NUM_DIFFERENT_PACKAGES];
+	int id2[NUM_DIFFERENT_PACKAGES];
+	Timer ppsTimers[NUM_DIFFERENT_PACKAGES];
 
-	Timer timer, timer2;
+	Timer timer, totalTestTimer;
 	timer.Start();
-	timer2.Start();
+	totalTestTimer.Start();
+
+	for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+	{
+		ppsTimers[i].Start();
+		id[i] = id2[i] = 0;
+	}
+
+	bool done = false;
 	double time = timer.ElapsedMilliseconds();
-	int i = 0;
-	for(; i < numPackages; )
+	while(!done)
 	{
 		clientUDP.TrySendBuffer();
-		if(id < numPackages && timer2.ElapsedMilliseconds() > packagesPerSec)
+		if(totalTestTimer.ElapsedSecounds() < seconds)
 		{
-			PackProtocolBigPosition(sendMsg, id++);
-			timers.timers[id-1].Start();
-			clientUDP.Send(sendMsg);
-			timer2.Start();
+			for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+			{
+				if(ppsTimers[i].ElapsedMilliseconds() > pps[i])
+				{
+					packStuff(sendMsg, PACKAGE_SIZES[i], id[i]++);
+					timers[i].timers[id[i]-1].Start();
+					clientUDP.Send(sendMsg);
+					//cout << "Size: " << sendMsg.GetSize() << endl;
+					ppsTimers[i].Start();
+				}
+			}
+		}
+		else
+		{
+			/*done = true;
+			for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+			{
+				if(id2[i] < id[i])
+				{
+					done = false;
+					break;
+				}
+			}*/
 		}
 
 		if(clientUDP.Recv(recvMsg))
 		{
 			int temp = -1;
 			int size = -1;
-			UnpackProtocolBigPosition(recvMsg, size, temp);
-			//cout << temp << ", " << recvMsg.GetSize() << endl;
+			unpackStuff(recvMsg, size, temp);
+			//if(recvMsg.GetSize() > 68)
+				//cout << temp << ", " << recvMsg.GetSize() << endl;
 
-			timers.timers[temp].ElapsedMilliseconds();
-			
+			for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+			{
+				if(size == PACKAGE_SIZES[i])
+				{
+					timers[i].timers[temp].ElapsedMilliseconds();
+					id2[i]++;
+				}
+			}
+
 			time = timer.ElapsedMilliseconds();
-
-			id2 = temp;
-			i++;
 		}
 
 		if(timer.ElapsedMilliseconds() - time > 2000)
 			break;
-
-		//Sleep(1);
 	}
-	timer.ElapsedMilliseconds();
 
 	cout << endl;
-	cout << "Total packages recieved: " << i << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
 
-	timers.CalculateResultAndSave(numPackages, UDP, buffering);
-	timers.printValues();
-	*/
+	for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+	{
+		timers[i].CalculateResultAndSave(id[i], UDP, buffering, i);
+		timers[i].printValues();
+	}
+
 	return true;
 }
 
