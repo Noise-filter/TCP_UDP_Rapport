@@ -32,7 +32,7 @@ void Timers::InitTimers(int numberOfTimers)
 	timers = new Timer[nrOfTimers];
 }
 
-bool Timers::CalculateResultAndSave(int numPackages, bool UDP, bool buffering)
+bool Timers::CalculateResultAndSave(int numPackages, bool UDP, bool buffering, int index)
 {
 	average = 0.0;
 	min = this->timers[0].GetEndTime();
@@ -63,8 +63,9 @@ bool Timers::CalculateResultAndSave(int numPackages, bool UDP, bool buffering)
 	struct tm * now = new tm();
     localtime_s( now,  &t );
 
-	char* fileName = new char[75];
+	char* fileName = new char[80];
 	
+	int temp = index;
 	int packages = numPackages;
 	int year = now->tm_year + 1900;
 	int month = now->tm_mon + 1;
@@ -77,12 +78,12 @@ bool Timers::CalculateResultAndSave(int numPackages, bool UDP, bool buffering)
 	{
 		if(buffering)
 		{
-			sprintf_s(fileName, 72  , "Research/UDP/Buffering/%d packages %d-%d-%d  %d.%d.%d.txt" , packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 77  , "Research/UDP/Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp ,packages, year, month, date, hour, minutes, seconds);
 		}
 
 		else
 		{
-			sprintf_s(fileName, 75 , "Research/UDP/No Buffering/%d packages %d-%d-%d  %d.%d.%d.txt" , packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 80 , "Research/UDP/No Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp , packages, year, month, date, hour, minutes, seconds);
 		}
 
 	}
@@ -91,12 +92,12 @@ bool Timers::CalculateResultAndSave(int numPackages, bool UDP, bool buffering)
 	{
 		if(buffering)
 		{
-			sprintf_s(fileName, 72 , "Research/TCP/Buffering/%d packages %d-%d-%d  %d.%d.%d.txt" , packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 77 , "Research/TCP/Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp , packages, year, month, date, hour, minutes, seconds);
 		}
 
 		else
 		{
-			sprintf_s(fileName, 75 , "Research/TCP/No Buffering/%d packages %d-%d-%d  %d.%d.%d.txt" , packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 80 , "Research/TCP/No Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp , packages, year, month, date, hour, minutes, seconds);
 		}	
 	}
   

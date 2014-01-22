@@ -90,4 +90,31 @@ void UnpackProtocolBigPosition(OysterByte& byte, int& size, int& id)
 	}
 }
 
+void packStuff(OysterByte& byte, int size, int id)
+{
+	if(size > 7)
+	{
+		PackProtocolID(byte, id);
+		char temp = 1;
+		for(int i = 8; i < size; i++)
+		{
+			Pack(&byte.GetByteArray()[i], temp);
+		}
+
+		byte.SetSize(size);
+		Pack(&byte.GetByteArray()[0], size);
+	}
+}
+
+void unpackStuff(OysterByte& byte, int &size, int &id)
+{
+	UnpackProtocolID(byte, size, id);
+
+	float temp = 0.0f;
+	for(int i = 8; i < byte.GetSize(); i++)
+	{
+		temp = Unpackf(&byte.GetByteArray()[i]);
+	}
+}
+
 #endif

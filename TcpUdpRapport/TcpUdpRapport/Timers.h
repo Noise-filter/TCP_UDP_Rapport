@@ -11,7 +11,7 @@ public:
 
 	void InitTimers(int numberOfTimers);
 
-	bool CalculateResultAndSave(int numPackages, bool UDP, bool buffering);
+	bool CalculateResultAndSave(int numPackages, bool UDP, bool buffering, int index);
 	void printValues();
 
 	Timer* timers;
