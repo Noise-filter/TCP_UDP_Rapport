@@ -260,10 +260,11 @@ bool ClientUpdateTCP(int seconds)
 			{
 				if(ppsTimers[i].ElapsedMilliseconds() > pps[i])
 				{
-					PackProtocolBigPosition(sendMsg, id[i]++);
+					packStuff(sendMsg, PACKAGE_SIZES[i], id[i]++);
 					timers[i].timers[id[i]-1].Start();
 					clientTCP.Send(sendMsg);
-					cout << "Size: " << sendMsg.GetSize() << endl;
+					//cout << "Size: " << sendMsg.GetSize() << endl;
+					ppsTimers[i].Start();
 				}
 			}
 		}
@@ -284,7 +285,7 @@ bool ClientUpdateTCP(int seconds)
 		{
 			int temp = -1;
 			int size = -1;
-			UnpackProtocolBigPosition(recvMsg, size, temp);
+			unpackStuff(recvMsg, size, temp);
 			//if(recvMsg.GetSize() > 68)
 				//cout << temp << ", " << recvMsg.GetSize() << endl;
 
@@ -293,6 +294,7 @@ bool ClientUpdateTCP(int seconds)
 				if(size == PACKAGE_SIZES[i])
 				{
 					timers[i].timers[temp].ElapsedMilliseconds();
+					id2[i]++;
 				}
 			}
 
@@ -306,9 +308,9 @@ bool ClientUpdateTCP(int seconds)
 	cout << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
 
-	for(int i = 0; i < 4; i++)
+	for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
 	{
-		timers[i].CalculateResultAndSave(seconds, UDP, buffering);
+		timers[i].CalculateResultAndSave(id[i], UDP, buffering, i);
 		timers[i].printValues();
 	}
 
