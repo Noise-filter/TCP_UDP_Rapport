@@ -78,12 +78,12 @@ bool Timers::CalculateResultAndSave(int numPackages, bool UDP, bool buffering, i
 	{
 		if(buffering)
 		{
-			sprintf_s(fileName, 77  , "Research/UDP/Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp ,packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 77  , "Research/UDP/Buffering/%d-%d-%d  %d.%d.%d ID%d %dpackages.txt" , year, month, date, hour, minutes, seconds , temp ,packages);
 		}
 
 		else
 		{
-			sprintf_s(fileName, 80 , "Research/UDP/No Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp , packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 80  , "Research/UDP/No Buffering/%d-%d-%d  %d.%d.%d ID%d %dpackages.txt" , year, month, date, hour, minutes, seconds , temp ,packages);
 		}
 
 	}
@@ -92,12 +92,12 @@ bool Timers::CalculateResultAndSave(int numPackages, bool UDP, bool buffering, i
 	{
 		if(buffering)
 		{
-			sprintf_s(fileName, 77 , "Research/TCP/Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp , packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 77 , "Research/TCP/Buffering/%d-%d-%d  %d.%d.%d ID%d %dpackages.txt" , year, month, date, hour, minutes, seconds , temp ,packages);
 		}
 
 		else
 		{
-			sprintf_s(fileName, 80 , "Research/TCP/No Buffering/ID%d %dpackages %d-%d-%d  %d.%d.%d.txt" , temp , packages, year, month, date, hour, minutes, seconds);
+			sprintf_s(fileName, 80 , "Research/TCP/No Buffering/%d-%d-%d  %d.%d.%d ID%d %dpackages.txt" , year, month, date, hour, minutes, seconds , temp ,packages);
 		}	
 	}
   
