@@ -133,12 +133,14 @@ void Buffering::AddRecvMessage(Oyster::Network::OysterByte& byte)
 			recievedMessages.push(msg);
 			//cout << "finished message 2" <<endl;
 			hasRecievedMessage = true;
+			return;
 		}
 		else
 		{
 			//cout << "got a part of the message" <<endl;
 			recvBuffer += byte;
 			size = byte.GetSize();
+			return;
 		}
 	}
 

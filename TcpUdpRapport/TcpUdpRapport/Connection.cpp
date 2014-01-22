@@ -113,11 +113,25 @@ int Connection::Send(OysterByte &bytes)
 	int nBytes;
 	
 	//std::cout << "Size: " << bytes.GetSize() << std::endl;
-	nBytes = send(this->socket, bytes, bytes.GetSize(), 0);
-	if(nBytes == SOCKET_ERROR)
+	int result;
+	int count = 0;
+	do
 	{
-		return WSAGetLastError();
-	}
+		nBytes = send(this->socket, bytes, bytes.GetSize(), 0);
+		if(nBytes == SOCKET_ERROR)
+		{
+			result = WSAGetLastError();
+			if(result == 10035)
+			{
+				count++;
+				if(count >= 2)
+					std::cout << count << std::endl;
+				continue;
+			}
+			else
+				return result;
+		}
+	}while(0);
 
 	return 0;
 }
@@ -134,6 +148,9 @@ int Connection::Recieve(OysterByte &bytes)
 		int result = WSAGetLastError();
 		if(result == WSAECONNRESET)
 			return 2;
+
+		if(result != WSAEWOULDBLOCK)
+			std::cout << result << std::endl;
 
 		return result;
 	}
