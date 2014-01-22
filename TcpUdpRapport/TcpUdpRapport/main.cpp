@@ -31,7 +31,14 @@ bool UDP = true;
 bool buffering = false;
 double bufferTimeLimit = 0.02;
 
-double packagesPerSec = 0;
+double pps[4];
+const int NUM_DIFFERENT_PACKAGES = 4;
+const int PACKAGE_SIZES[NUM_DIFFERENT_PACKAGES] = {
+	8,
+	64,
+	400,
+	1000,
+};
 
 string IP = "localhost";
 unsigned short Port = 9876;
@@ -45,13 +52,21 @@ OysterByte sendMsg;
 
 Config configFile;
 
-Timers timers;
+Timers timers[NUM_DIFFERENT_PACKAGES];
 
 int main()
 {
-	timers.InitTimers(1000000);
+	timers[0].InitTimers(1000000);
+	timers[1].InitTimers(1000000);
+	timers[2].InitTimers(1000000);
+	timers[3].InitTimers(1000000);
 	recvMsg.Resize(MAX_MESSAGE_SIZE);
 	sendMsg.Resize(MAX_MESSAGE_SIZE);
+
+	pps[0] = (double)1/(double)60 * 1000;
+	pps[1] = (double)1/(double)60 * 1000;
+	pps[2] = (double)1/(double)30 * 1000;
+	pps[3] = (double)1/(double)7 * 1000;
 
 	InitWinSock();
 
@@ -135,11 +150,11 @@ connections:
 			bool runTest = false;
 			int val = 5;
 			cout << "Menu" << endl;
-			cout << "1. 1 Packet" << endl;
-			cout << "2. 10 Packages" << endl;
-			cout << "3. 100 Packages" << endl;
-			cout << "4. 1000 Packages" << endl;
-			cout << "5. 10000 Packages" << endl;
+			cout << "1. 1 seconds" << endl;
+			cout << "2. 2 seconds" << endl;
+			cout << "3. 3 seconds" << endl;
+			cout << "4. 4 seconds" << endl;
+			cout << "5. 5 seconds" << endl;
 			if(buffering)
 				cout << "9. Turn buffering off" << endl;
 			else
@@ -154,19 +169,19 @@ connections:
 				runTest = true;
 				break;
 			case 2:
-				numPackages = 10;
+				numPackages = 2;
 				runTest = true;
 				break;
 			case 3:
-				numPackages = 100;
+				numPackages = 3;
 				runTest = true;
 				break;
 			case 4:
-				numPackages = 1000;
+				numPackages = 4;
 				runTest = true;
 				break;
 			case 5:
-				numPackages = 10000;
+				numPackages = 5;
 				runTest = true;
 				break;
 			case 9:
@@ -182,8 +197,7 @@ connections:
 			default:
 				break;
 			}
-			packagesPerSec -= 0;
-			cout << "Packages per sec: " << packagesPerSec << endl;
+
 			if(runTest)
 			{
 				if(UDP)
@@ -219,24 +233,51 @@ connections:
 	return 0;
 }
 
-bool ClientUpdateTCP(int numPackages)
+bool ClientUpdateTCP(int seconds)
 {
-	int id = 0;
-	int id2 = -1;
+	int id[NUM_DIFFERENT_PACKAGES];
+	int id2[NUM_DIFFERENT_PACKAGES];
+	Timer ppsTimers[NUM_DIFFERENT_PACKAGES];
 
-	Timer timer, timer2;
+	Timer timer, totalTestTimer;
 	timer.Start();
-	timer2.Start();
+	totalTestTimer.Start();
+
+	for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+	{
+		ppsTimers[i].Start();
+		id[i] = id2[i] = 0;
+	}
+
+	bool done = false;
 	double time = timer.ElapsedMilliseconds();
-	for(int i = 0; id2 < numPackages-1; )
+	while(!done)
 	{
 		clientTCP.TrySendBuffer();
-		if(id < numPackages && timer2.ElapsedMilliseconds() > packagesPerSec)
+		if(totalTestTimer.ElapsedSecounds() < seconds)
 		{
-			PackProtocolBigPosition(sendMsg, id++);
-			timers.timers[id-1].Start();
-			clientTCP.Send(sendMsg);
-			timer2.Start();
+			for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+			{
+				if(ppsTimers[i].ElapsedMilliseconds() > pps[i])
+				{
+					PackProtocolBigPosition(sendMsg, id[i]++);
+					timers[i].timers[id[i]-1].Start();
+					clientTCP.Send(sendMsg);
+					cout << "Size: " << sendMsg.GetSize() << endl;
+				}
+			}
+		}
+		else
+		{
+			done = true;
+			for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+			{
+				if(id2[i] < id[i])
+				{
+					done = false;
+					break;
+				}
+			}
 		}
 
 		if(clientTCP.Recv(recvMsg))
@@ -247,27 +288,29 @@ bool ClientUpdateTCP(int numPackages)
 			//if(recvMsg.GetSize() > 68)
 				//cout << temp << ", " << recvMsg.GetSize() << endl;
 
-			timers.timers[temp].ElapsedMilliseconds();
-			
-			time = timer.ElapsedMilliseconds();
+			for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
+			{
+				if(size == PACKAGE_SIZES[i])
+				{
+					timers[i].timers[temp].ElapsedMilliseconds();
+				}
+			}
 
-			id2 = temp;
+			time = timer.ElapsedMilliseconds();
 		}
 
 		if(timer.ElapsedMilliseconds() - time > 2000)
 			break;
-
-		//Sleep(1);
 	}
-	timer.ElapsedMilliseconds();
-
-	
 
 	cout << endl;
 	cout << "Total time: " << timer.GetEndTime() << " milliseconds." << endl;
 
-	timers.CalculateResultAndSave(numPackages, UDP, buffering);
-	timers.printValues();
+	for(int i = 0; i < 4; i++)
+	{
+		timers[i].CalculateResultAndSave(seconds, UDP, buffering);
+		timers[i].printValues();
+	}
 
 	return true;
 }
@@ -291,7 +334,7 @@ bool ServerUpdateTCP()
 
 bool ClientUpdateUDP(int numPackages)
 {
-	int id = 0;
+	/*int id = 0;
 	int id2 = -1;
 
 	Timer timer, timer2;
@@ -338,7 +381,7 @@ bool ClientUpdateUDP(int numPackages)
 
 	timers.CalculateResultAndSave(numPackages, UDP, buffering);
 	timers.printValues();
-
+	*/
 	return true;
 }
 
