@@ -63,10 +63,10 @@ int main()
 	recvMsg.Resize(MAX_MESSAGE_SIZE);
 	sendMsg.Resize(MAX_MESSAGE_SIZE);
 
-	pps[0] = (double)1/(double)60 * 1000;
-	pps[1] = (double)1/(double)60 * 1000;
-	pps[2] = (double)1/(double)30 * 1000;
-	pps[3] = (double)1/(double)7 * 1000;
+	pps[0] = (double)1/(double)3000 * 1000;
+	pps[1] = (double)1/(double)3000 * 1000;
+	pps[2] = (double)1/(double)1500 * 1000;
+	pps[3] = (double)1/(double)700 * 1000;
 
 	InitWinSock();
 
@@ -166,6 +166,8 @@ connections:
 			{
 			case 1:
 				numPackages = 1;
+				cout << "How long? ";
+				cin >> numPackages;
 				runTest = true;
 				break;
 			case 2:
@@ -270,7 +272,7 @@ bool ClientUpdateTCP(int seconds)
 		}
 		else
 		{
-			done = true;
+			/*done = true;
 			for(int i = 0; i < NUM_DIFFERENT_PACKAGES; i++)
 			{
 				if(id2[i] < id[i])
@@ -278,7 +280,7 @@ bool ClientUpdateTCP(int seconds)
 					done = false;
 					break;
 				}
-			}
+			}*/
 		}
 
 		if(clientTCP.Recv(recvMsg))

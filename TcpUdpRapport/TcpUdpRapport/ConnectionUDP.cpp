@@ -204,9 +204,9 @@ int ConnectionUDP::InitiateSocket()
 	}
 	int flag = 1024*16;
 	int result = 0;
-
+/*
 	result = setsockopt(this->socket, SOL_SOCKET, SO_RCVBUF, (char*)&flag, sizeof(int));
 	result = setsockopt(this->socket, SOL_SOCKET, SO_SNDBUF, (char*)&flag, sizeof(int));
-
+	*/
 	return 0;
 }
