@@ -150,7 +150,7 @@ connections:
 			bool runTest = false;
 			int val = 5;
 			cout << "Menu" << endl;
-			cout << "1. 1 seconds" << endl;
+			cout << "1. Choose your own time in seconds." << endl;
 			cout << "2. 2 seconds" << endl;
 			cout << "3. 3 seconds" << endl;
 			cout << "4. 4 seconds" << endl;
