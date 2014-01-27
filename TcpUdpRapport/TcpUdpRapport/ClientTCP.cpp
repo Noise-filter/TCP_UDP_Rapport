@@ -73,14 +73,16 @@ void ClientTCP::Send(Oyster::Network::OysterByte& byte)
 using namespace std;
 int ClientTCP::Recv(Oyster::Network::OysterByte& byte)
 {
+	static int asd = 0;
 	int result = connection->Recieve(byte);
+
+	if(result == 2)
+		return result;
 
 	if(!result)
 	{
-		//cout << "ASD: " << byte.GetSize() << endl;
 		buffering.AddRecvMessage(byte);
 	}
-
 	result = buffering.Recv(byte);
 
 	return result;

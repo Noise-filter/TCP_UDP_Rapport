@@ -29,7 +29,7 @@ bool RunServer = false;
 bool UDP = true;
 
 bool buffering = false;
-double bufferTimeLimit = 0.02;
+double bufferTimeLimit = 0.05;
 
 double pps[4];
 const int NUM_DIFFERENT_PACKAGES = 4;
@@ -56,17 +56,17 @@ Timers timers[NUM_DIFFERENT_PACKAGES];
 
 int main()
 {
-	timers[0].InitTimers(1000000);
-	timers[1].InitTimers(1000000);
+	timers[0].InitTimers(3000000);
+	timers[1].InitTimers(3000000);
 	timers[2].InitTimers(1000000);
 	timers[3].InitTimers(1000000);
 	recvMsg.Resize(MAX_MESSAGE_SIZE);
 	sendMsg.Resize(MAX_MESSAGE_SIZE);
 
-	pps[0] = (double)1/(double)4000 * 1000;
-	pps[1] = (double)1/(double)4000 * 1000;
-	pps[2] = (double)1/(double)2000 * 1000;
-	pps[3] = (double)1/(double)1000 * 1000;
+	pps[0] = (double)1/(double)3000 * 1000;
+	pps[1] = (double)1/(double)3000 * 1000;
+	pps[2] = (double)1/(double)1000 * 1000;
+	pps[3] = (double)1/(double)500 * 1000;
 
 	InitWinSock();
 
@@ -128,6 +128,11 @@ connections:
 			Sleep(1);
 		}
 	}
+
+	clientUDP.UseBuffering(buffering);
+	clientUDP.SetBufferTimeLimit(bufferTimeLimit);
+	clientTCP.UseBuffering(buffering);
+	clientTCP.SetBufferTimeLimit(bufferTimeLimit);
 
 	cout << "Start test" << endl;
 
@@ -287,7 +292,8 @@ bool ClientUpdateTCP(int seconds)
 		{
 			int temp = -1;
 			int size = -1;
-			unpackStuff(recvMsg, size, temp);
+			UnpackProtocolID(recvMsg, size, temp);
+			//unpackStuff(recvMsg, size, temp);
 			//if(recvMsg.GetSize() > 68)
 				//cout << temp << ", " << recvMsg.GetSize() << endl;
 
@@ -321,12 +327,13 @@ bool ClientUpdateTCP(int seconds)
 
 bool ServerUpdateTCP()
 {
-	int result = clientTCP.PureRecv(recvMsg);
-	if(!result)
+	int result = clientTCP.Recv(recvMsg);
+	//int result = clientTCP.PureRecv(recvMsg);
+	if(result == 1)
 	{
 		//cout << recvMsg.GetSize() << endl;	//Print out the size of the recieved message
 
-		clientTCP.PureSend(recvMsg);
+		clientTCP.Send(recvMsg);
 	}
 	else if(result == 2)	//Client dropped
 	{
@@ -388,7 +395,8 @@ bool ClientUpdateUDP(int seconds)
 		{
 			int temp = -1;
 			int size = -1;
-			unpackStuff(recvMsg, size, temp);
+			UnpackProtocolID(recvMsg, size, temp);
+			//unpackStuff(recvMsg, size, temp);
 			//if(recvMsg.GetSize() > 68)
 				//cout << temp << ", " << recvMsg.GetSize() << endl;
 
@@ -422,11 +430,19 @@ bool ClientUpdateUDP(int seconds)
 
 bool ServerUpdateUDP()
 {
-	if(!clientUDP.PureRecv(recvMsg))
+
+	int result = clientUDP.Recv(recvMsg);
+	clientUDP.TrySendBuffer();
+
+	if(result == 1)
 	{
 		//cout << recvMsg.GetSize() << endl;	//Print out the size of the recieved message
 
-		clientUDP.PureSend(recvMsg);
+		clientUDP.Send(recvMsg);
+	}
+	else if(result == 2)	//Client dropped
+	{
+		return false;
 	}
 
 	return true;
