@@ -29,7 +29,7 @@ bool RunServer = false;
 bool UDP = true;
 
 bool buffering = false;
-double bufferTimeLimit = 0.05;
+double bufferTimeLimit = 0.30;
 
 double pps[4];
 const int NUM_DIFFERENT_PACKAGES = 4;
@@ -63,10 +63,10 @@ int main()
 	recvMsg.Resize(MAX_MESSAGE_SIZE);
 	sendMsg.Resize(MAX_MESSAGE_SIZE);
 
-	pps[0] = (double)1/(double)3000 * 1000;
-	pps[1] = (double)1/(double)3000 * 1000;
-	pps[2] = (double)1/(double)1000 * 1000;
-	pps[3] = (double)1/(double)500 * 1000;
+	pps[0] = (double)1/(double)500000 * 1000;
+	pps[1] = (double)1/(double)500000 * 1000;
+	pps[2] = (double)1/(double)20000 * 1000;
+	pps[3] = (double)1/(double)10000 * 1000;
 
 	InitWinSock();
 
@@ -113,6 +113,7 @@ int main()
 	if(RunServer && !UDP)
 	{
 connections:
+		keepLooping = true;
 		cout << "Listening for new client." << endl;
 		while(keepLooping)
 		{
@@ -329,11 +330,12 @@ bool ServerUpdateTCP()
 {
 	int result = clientTCP.Recv(recvMsg);
 	//int result = clientTCP.PureRecv(recvMsg);
+	//clientTCP.TrySendBuffer();
 	if(result == 1)
 	{
 		//cout << recvMsg.GetSize() << endl;	//Print out the size of the recieved message
 
-		clientTCP.Send(recvMsg);
+		clientTCP.PureSend(recvMsg);
 	}
 	else if(result == 2)	//Client dropped
 	{
@@ -430,15 +432,14 @@ bool ClientUpdateUDP(int seconds)
 
 bool ServerUpdateUDP()
 {
-
 	int result = clientUDP.Recv(recvMsg);
-	clientUDP.TrySendBuffer();
+	//clientUDP.TrySendBuffer();
 
 	if(result == 1)
 	{
 		//cout << recvMsg.GetSize() << endl;	//Print out the size of the recieved message
 
-		clientUDP.Send(recvMsg);
+		clientUDP.PureSend(recvMsg);
 	}
 	else if(result == 2)	//Client dropped
 	{
